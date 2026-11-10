@@ -472,6 +472,18 @@ input,select,textarea{font-family:inherit}
               </div>
             </div>
 
+            <!-- NEW: Form Settings Panel -->
+            <div class="panel">
+              <div class="panel-head"><h3><i class="fa-solid fa-sliders"></i> Form Settings</h3></div>
+              <div class="panel-body">
+                <div class="field">
+                  <label>Maximum Responses (Submission Limit)</label>
+                  <input type="number" id="fMaxResponses" min="0" placeholder="Leave empty for unlimited" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:.9rem;outline:none;transition:.2s;">
+                  <div class="hint">Set the maximum number of respondents allowed to submit this form. Leave empty for no limit.</div>
+                </div>
+              </div>
+            </div>
+
             <div class="panel">
               <div class="panel-head">
                 <h3><i class="fa-solid fa-layer-group"></i> Sections &amp; Questions</h3>
@@ -1249,7 +1261,8 @@ function defaultSettings(){
     themeColor:'#C62828', headerImage:'', submitText:'Submit',
     confirmationMessage:'Thank you! Your response has been recorded.',
     acceptingResponses:true, allowMultiple:true, closingMessage:'',
-    deadline:null, allowEditing:false
+    deadline:null, allowEditing:false,
+    maxResponses: null
   };
 }
 
@@ -1262,6 +1275,7 @@ function startNewForm(){
   initTopEditors();
   fTitleEditor.setHtml('');
   fDescEditor.setHtml('');
+  $('#fMaxResponses').value = '';
   renderSections();
   switchPage('create');
 }
@@ -1304,6 +1318,7 @@ function editForm(id){
   initTopEditors();
   fTitleEditor.setHtml(currentForm.titleHtml || escapeHtml(currentForm.title));
   fDescEditor.setHtml(currentForm.descriptionHtml || escapeHtml(currentForm.description));
+  $('#fMaxResponses').value = currentForm.settings.maxResponses !== undefined && currentForm.settings.maxResponses !== null ? currentForm.settings.maxResponses : '';
   renderSections();
   switchPage('create');
 }
@@ -1818,9 +1833,17 @@ async function saveForm(publish){
   const titleText = htmlToText(titleHtml);
   const descText  = htmlToText(descHtml);
 
+  // --- Read max responses
+  const maxRespInput = $('#fMaxResponses').value.trim();
+  const maxResponses = maxRespInput ? parseInt(maxRespInput, 10) : null;
+
   // --- Validation.
   if (!titleText){ toast('Please enter a form title', 'error'); return; }
   if (totalQuestions() === 0){ toast('Add at least one question', 'error'); return; }
+  if (maxResponses !== null && (isNaN(maxResponses) || maxResponses < 0)) {
+    toast('Please enter a valid positive number for max responses.', 'error');
+    return;
+  }
 
   currentSections.forEach((s, i) => {
     if (!s.title || !s.title.trim()){
@@ -1850,6 +1873,9 @@ async function saveForm(publish){
     status: publish ? 'published' : 'draft',
     updatedAt: serverTimestamp()
   };
+
+  // Add maxResponses to settings
+  payload.settings.maxResponses = maxResponses;
 
   // --- Write to Firestore.
   try {
