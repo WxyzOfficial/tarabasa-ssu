@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TARA BASA Forms — Create Forms, Collect Responses</title>
+<link rel="icon" href="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --light-blue:#DCEEFF; --primary:#4A90E2; --dark-blue:#173B63;
+    --accent:#FFD54F; --soft-yellow:#FFF4BF; --white:#FFFFFF;
+    --bg:#F5F9FE; --text:#243447; --text2:#64748B;
+    --border:#DCE5EF; --success:#198754; --error:#DC3545;
+    --shadow:0 4px 16px rgba(23,59,99,.08);
+    --shadow-lg:0 12px 32px rgba(23,59,99,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  .container{max-width:1180px;margin:0 auto;padding:0 24px}
+
+  /* Header */
+  header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:72px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.1rem;color:var(--dark-blue)}
+  .brand img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--light-blue)}
+  .brand small{display:block;font-weight:500;font-size:.72rem;color:var(--text2);letter-spacing:.02em}
+  .nav-links{display:flex;gap:8px;align-items:center}
+  .nav-links a{padding:10px 14px;border-radius:8px;font-size:.92rem;font-weight:500;color:var(--text2);transition:.2s}
+  .nav-links a:hover{color:var(--dark-blue);background:var(--light-blue)}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-weight:600;font-size:.92rem;transition:.2s;white-space:nowrap}
+  .btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(74,144,226,.3)}
+  .btn-primary:hover{background:#3a7bc8;transform:translateY(-1px)}
+  .btn-accent{background:var(--accent);color:var(--dark-blue)}
+  .btn-accent:hover{background:#ffc91f;transform:translateY(-1px)}
+  .btn-ghost{background:var(--white);color:var(--dark-blue);border:1px solid var(--border)}
+  .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+  .btn-lg{padding:14px 26px;font-size:1rem}
+  .menu-toggle{display:none;font-size:1.3rem;color:var(--dark-blue);padding:8px}
+
+  /* Hero */
+  .hero{padding:80px 0 60px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,var(--light-blue),transparent 70%);opacity:.7;z-index:-1}
+  .hero::after{content:"";position:absolute;bottom:-150px;left:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,var(--soft-yellow),transparent 70%);opacity:.6;z-index:-1}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:var(--white);border:1px solid var(--border);font-size:.82rem;font-weight:600;color:var(--primary);margin-bottom:20px;box-shadow:var(--shadow)}
+  .badge i{color:var(--accent)}
+  .hero h1{font-size:2.8rem;line-height:1.15;font-weight:800;color:var(--dark-blue);letter-spacing:-.02em;margin-bottom:20px}
+  .hero h1 .highlight{background:linear-gradient(120deg,var(--accent) 0%,#ffe28a 100%);padding:0 6px;border-radius:6px}
+  .hero p.lead{font-size:1.08rem;color:var(--text2);margin-bottom:32px;max-width:540px}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+  .hero-visual{position:relative}
+  .hero-card{background:var(--white);border-radius:20px;padding:24px;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+  .hero-card-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+  .hero-card-head .dot{width:10px;height:10px;border-radius:50%}
+  .mock-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;margin-bottom:8px;background:var(--bg)}
+  .mock-row .icon{width:34px;height:34px;border-radius:8px;background:var(--light-blue);display:flex;align-items:center;justify-content:center;color:var(--primary)}
+  .mock-row .lines{flex:1}
+  .mock-row .line{height:8px;border-radius:4px;background:var(--border);margin-bottom:6px}
+  .mock-row .line.short{width:60%}
+  .mock-row .status{padding:4px 10px;border-radius:99px;font-size:.7rem;font-weight:600;background:#e3f5ea;color:var(--success)}
+
+  /* Sections */
+  section{padding:72px 0}
+  .section-head{text-align:center;max-width:680px;margin:0 auto 52px}
+  .section-head .eyebrow{color:var(--primary);font-weight:700;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;display:inline-block}
+  .section-head h2{font-size:2rem;font-weight:800;color:var(--dark-blue);letter-spacing:-.02em;margin-bottom:14px}
+  .section-head p{color:var(--text2);font-size:1.02rem}
+
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+  .feature{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px;transition:.25s}
+  .feature:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--light-blue)}
+  .feature .ficon{width:52px;height:52px;border-radius:14px;background:var(--light-blue);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:18px}
+  .feature:nth-child(2n) .ficon{background:var(--soft-yellow);color:#b8860b}
+  .feature h3{font-size:1.1rem;font-weight:700;color:var(--dark-blue);margin-bottom:8px}
+  .feature p{font-size:.94rem;color:var(--text2)}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;position:relative}
+  .step{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:30px 24px;position:relative;box-shadow:var(--shadow)}
+  .step .num{position:absolute;top:-16px;left:24px;width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;box-shadow:0 4px 10px rgba(74,144,226,.4)}
+  .step .sicon{font-size:1.6rem;color:var(--primary);margin:14px 0 12px}
+  .step h3{font-size:1.05rem;color:var(--dark-blue);margin-bottom:8px;font-weight:700}
+  .step p{font-size:.92rem;color:var(--text2)}
+
+  /* Benefits two-col */
+  .benefits{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .benefit-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:34px;box-shadow:var(--shadow)}
+  .benefit-card.accent{background:linear-gradient(135deg,var(--dark-blue),#22507f);color:#fff;border:none}
+  .benefit-card.accent h3,.benefit-card.accent ul i{color:var(--accent)}
+  .benefit-card h3{font-size:1.25rem;font-weight:700;margin-bottom:18px;color:var(--dark-blue);display:flex;align-items:center;gap:10px}
+  .benefit-card.accent h3{color:#fff}
+  .benefit-card ul{list-style:none}
+  .benefit-card li{padding:9px 0;display:flex;gap:12px;align-items:flex-start;font-size:.95rem;color:var(--text2)}
+  .benefit-card.accent li{color:rgba(255,255,255,.85)}
+  .benefit-card li i{color:var(--success);margin-top:5px;font-size:.9rem}
+  .benefit-card.accent li i{color:var(--accent)}
+
+  /* Spreadsheet preview */
+  .sheet-preview{background:var(--white);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lg)}
+  .sheet-preview .bar{background:var(--light-blue);padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+  .sheet-preview .bar .tab{background:var(--white);padding:6px 14px;border-radius:8px;font-size:.82rem;font-weight:600;color:var(--dark-blue);display:flex;align-items:center;gap:8px}
+  .sheet-table{width:100%;border-collapse:collapse;font-size:.88rem}
+  .sheet-table th,.sheet-table td{border:1px solid var(--border);padding:10px 12px;text-align:left}
+  .sheet-table th{background:var(--bg);font-weight:600;color:var(--dark-blue);font-size:.8rem}
+  .sheet-table .col-letter{background:var(--light-blue);text-align:center;font-weight:600;color:var(--dark-blue);width:36px}
+
+  /* Privacy */
+  .privacy{background:linear-gradient(135deg,var(--light-blue),#eaf4ff);border-radius:20px;padding:50px 40px;text-align:center;border:1px solid var(--border)}
+  .privacy i.shield{font-size:2.4rem;color:var(--primary);margin-bottom:16px}
+  .privacy h2{font-size:1.6rem;color:var(--dark-blue);margin-bottom:14px}
+  .privacy p{color:var(--text2);max-width:680px;margin:0 auto;font-size:1rem}
+
+  /* CTA */
+  .cta{background:linear-gradient(135deg,var(--dark-blue),#1e4a7a);border-radius:22px;padding:60px 40px;text-align:center;color:#fff;position:relative;overflow:hidden}
+  .cta::before{content:"";position:absolute;top:-100px;right:-100px;width:300px;height:300px;border-radius:50%;background:rgba(255,213,79,.15)}
+  .cta h2{font-size:1.9rem;margin-bottom:12px;position:relative}
+  .cta p{opacity:.85;margin-bottom:26px;position:relative}
+  .cta .btn-accent{position:relative}
+
+  /* Footer */
+  footer{background:var(--dark-blue);color:rgba(255,255,255,.75);padding:48px 0 24px;margin-top:0}
+  .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:32px}
+  footer .brand{color:#fff}
+  footer .brand small{color:rgba(255,255,255,.6)}
+  footer p{font-size:.9rem;margin-top:14px;max-width:380px}
+  footer h4{color:#fff;font-size:.95rem;margin-bottom:14px;font-weight:600}
+  footer ul{list-style:none}
+  footer li{margin-bottom:8px}
+  footer li a{font-size:.9rem;transition:.2s}
+  footer li a:hover{color:var(--accent)}
+  .footer-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:20px;text-align:center;font-size:.85rem}
+
+  /* Mobile */
+  @media(max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:40px}
+    .hero h1{font-size:2.2rem}
+    .benefits{grid-template-columns:1fr}
+    .footer-grid{grid-template-columns:1fr;gap:28px}
+    .nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:#fff;flex-direction:column;padding:16px;border-bottom:1px solid var(--border);gap:4px}
+    .nav-links.open{display:flex}
+    .nav-links a{width:100%}
+    .menu-toggle{display:block}
+    .nav-links .btn{width:100%;justify-content:center}
+  }
+  @media(max-width:600px){
+    .hero{padding:50px 0 40px}
+    .hero h1{font-size:1.8rem}
+    section{padding:52px 0}
+    .privacy,.cta{padding:36px 24px}
+    .hero-actions{flex-direction:column}
+    .hero-actions .btn{width:100%;justify-content:center}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="dashboard.html" class="brand">
+      <img src="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png" alt="SSU Logo">
+      <span>TARA BASA Forms<small>Samar State University</small></span>
+    </a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+    <nav class="nav-links" id="navLinks">
+      <a href="#features">Features</a>
+      <a href="#how">How it Works</a>
+      <a href="#spreadsheet">Spreadsheet</a>
+      <a href="#privacy">Privacy</a>
+      <a href="login.html" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket"></i> Admin Login</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="badge"><i class="fa-solid fa-star"></i> Built for the Office of Student Affairs and Services (SSU-TARA BASA PROGRAM)</span>
+      <h1>Create Forms. Collect Responses. <span class="highlight">Manage Everything</span> in One Place.</h1>
+      <p class="lead">Build forms effortlessly, share them through a single link, collect responses without requiring registration, and organize every submission through a powerful built-in spreadsheet interface.</p>
+      <div class="hero-actions">
+        <a href="login.html" class="btn btn-primary btn-lg"><i class="fa-solid fa-rocket"></i> Get Started</a>
+        <a href="#features" class="btn btn-ghost btn-lg"><i class="fa-solid fa-compass"></i> Explore Features</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card">
+        <div class="hero-card-head">
+          <span class="dot" style="background:#ff5f57"></span>
+          <span class="dot" style="background:#febc2e"></span>
+          <span class="dot" style="background:#28c840"></span>
+          <span style="margin-left:10px;font-size:.82rem;color:var(--text2);font-weight:600">CHED Free Higher Education Form</span>
+        </div>
+        <div class="mock-row">
+          <div class="icon"><i class="fa-solid fa-user"></i></div>
+          <div class="lines"><div class="line"></div><div class="line short"></div></div>
+          <span class="status"><i class="fa-solid fa-check"></i> New</span>
+        </div>
+        <div class="mock-row">
+          <div class="icon"><i class="fa-solid fa-envelope"></i></div>
+          <div class="lines"><div class="line"></div><div class="line short"></div></div>
+          <span class="status"><i class="fa-solid fa-check"></i> New</span>
+        </div>
+        <div class="mock-row">
+          <div class="icon"><i class="fa-solid fa-comment"></i></div>
+          <div class="lines"><div class="line"></div><div class="line short"></div></div>
+          <span class="status"><i class="fa-solid fa-check"></i> New</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Powerful Features</span>
+      <h2>Everything You Need to Build and Manage Forms</h2>
+      <p>A modern, intuitive form platform designed for administrators and respondents alike.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="ficon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <h3>Drag-Free Form Builder</h3>
+        <p>Create forms visually without writing a single line of code. Add questions, reorder them, and customize every detail.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon"><i class="fa-solid fa-share-nodes"></i></div>
+        <h3>One-Link Sharing</h3>
+        <p>Publish your form and share a unique public URL instantly. No registration needed for respondents.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon"><i class="fa-solid fa-table-cells"></i></div>
+        <h3>Built-in Spreadsheet</h3>
+        <p>A Google Sheets-inspired grid lets you view, sort, search, filter, and export every response.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon"><i class="fa-solid fa-list-check"></i></div>
+        <h3>11 Question Types</h3>
+        <p>Short answer, paragraphs, multiple choice, checkboxes, dropdowns, dates, scales, and more.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>Real-Time Responses</h3>
+        <p>Watch submissions come in live. Response counts update automatically as users submit.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon"><i class="fa-solid fa-file-csv"></i></div>
+        <h3>CSV Export</h3>
+        <p>Export responses to CSV with one click — respecting your current search and filter settings.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it Works -->
+<section id="how" style="background:var(--white)">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Simple Workflow</span>
+      <h2>How It Works</h2>
+      <p>Four simple steps from building a form to analyzing responses.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="num">1</span>
+        <i class="fa-solid fa-pen-ruler sicon"></i>
+        <h3>Build Your Form</h3>
+        <p>Add questions, set options, and customize the design in the admin dashboard.</p>
+      </div>
+      <div class="step"><span class="num">2</span>
+        <i class="fa-solid fa-paper-plane sicon"></i>
+        <h3>Publish & Share</h3>
+        <p>Click publish, copy the unique link, and share it with respondents via email or social media.</p>
+      </div>
+      <div class="step"><span class="num">3</span>
+        <i class="fa-solid fa-inbox sicon"></i>
+        <h3>Collect Responses</h3>
+        <p>Respondents submit answers without needing an account — no signup required.</p>
+      </div>
+      <div class="step"><span class="num">4</span>
+        <i class="fa-solid fa-table sicon"></i>
+        <h3>Manage in Spreadsheet</h3>
+        <p>Open the built-in spreadsheet to search, filter, sort, and export responses.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Benefits -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Built for Everyone</span>
+      <h2>Benefits for Admins and Respondents</h2>
+    </div>
+    <div class="benefits">
+      <div class="benefit-card">
+        <h3><i class="fa-solid fa-user-shield"></i> For Administrators</h3>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> Manage unlimited forms from one dashboard</li>
+          <li><i class="fa-solid fa-check"></i> Duplicate, edit, and reorganize forms instantly</li>
+          <li><i class="fa-solid fa-check"></i> Open or close forms without deleting them</li>
+          <li><i class="fa-solid fa-check"></i> View full response details in a spreadsheet grid</li>
+          <li><i class="fa-solid fa-check"></i> Export response data to CSV for analysis</li>
+          <li><i class="fa-solid fa-check"></i> Track submission counts and dates in real time</li>
+        </ul>
+      </div>
+      <div class="benefit-card accent">
+        <h3><i class="fa-solid fa-users"></i> For Respondents</h3>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> No account or registration required</li>
+          <li><i class="fa-solid fa-check"></i> Clean, mobile-friendly form interface</li>
+          <li><i class="fa-solid fa-check"></i> Clear validation and helpful error messages</li>
+          <li><i class="fa-solid fa-check"></i> Quick submission with instant confirmation</li>
+          <li><i class="fa-solid fa-check"></i> Access forms from any device or browser</li>
+          <li><i class="fa-solid fa-check"></i> Answers preserved if an error occurs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Spreadsheet Preview -->
+<section id="spreadsheet" style="background:var(--white)">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Spreadsheet Manager</span>
+      <h2>Your Responses, Organized Like a Spreadsheet</h2>
+      <p>Every form has its own dedicated grid with column letters, row numbers, and the familiar feel of Google Sheets.</p>
+    </div>
+    <div class="sheet-preview">
+      <div class="bar">
+        <span class="tab"><i class="fa-solid fa-table"></i> Responses</span>
+        <span style="font-size:.82rem;color:var(--text2)"><i class="fa-solid fa-circle-check" style="color:var(--success)"></i> 128 responses synced</span>
+      </div>
+      <table class="sheet-table">
+        <thead>
+          <tr>
+            <th class="col-letter"></th>
+            <th class="col-letter">A</th>
+            <th class="col-letter">B</th>
+            <th class="col-letter">C</th>
+            <th class="col-letter">D</th>
+            <th class="col-letter">E</th>
+          </tr>
+          <tr>
+            <th class="col-letter">1</th>
+            <th>Submission ID</th>
+            <th>Submitted At</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Feedback</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-letter">2</td>
+            <td>r_8x2k1</td><td>2025-01-14 09:12</td><td>Juan Dela Cruz</td><td>juan@ssu.edu.ph</td><td>Excellent service</td>
+          </tr>
+          <tr>
+            <td class="col-letter">3</td>
+            <td>r_9p4m7</td><td>2025-01-14 10:45</td><td>Maria Santos</td><td>maria@ssu.edu.ph</td><td>Very helpful</td>
+          </tr>
+          <tr>
+            <td class="col-letter">4</td>
+            <td>r_2n8v5</td><td>2025-01-15 14:03</td><td>Pedro Reyes</td><td>pedro@ssu.edu.ph</td><td>Great experience</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Privacy -->
+<section id="privacy">
+  <div class="container">
+    <div class="privacy">
+      <i class="fa-solid fa-shield-halved shield"></i>
+      <h2>DATA PRIVACY NOTICE</h2>
+      <p>In compliance with the Data Privacy Act of 2012 (RA 10173), Samar State University is committed to protecting your personal information. Data collected through TARA BASA Forms will be used only for its intended purpose, accessed only by authorized personnel, and protected through appropriate security measures.</p>
+      <br>
+      <p>By submitting a form, you acknowledge this notice and consent to data processing where applicable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="padding-top:0">
+  <div class="container">
+    <div class="cta">
+      <h2>Ready to Build Your First Form?</h2>
+      <p>Sign in to your administrator account and start creating forms in seconds.</p>
+      <a href="login.html" class="btn btn-accent btn-lg"><i class="fa-solid fa-right-to-bracket"></i> Admin Login</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="brand">
+          <img src="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png" alt="SSU Logo">
+          <span>TARA BASA Forms<small>Samar State University</small></span>
+        </a>
+        <p>A modern form builder and response management platform for the SSU community — powered by Firebase.</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how">How it Works</a></li>
+          <li><a href="login.html">Admin Login</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#privacy">Privacy</a></li>
+          <li><a href="#spreadsheet">Spreadsheet</a></li>
+          <li><a href="#features">Question Types</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 <span id="year"></span> Samar State University · TARA BASA Forms · All Rights Reserved
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  const mt = document.getElementById('menuToggle');
+  const nl = document.getElementById('navLinks');
+  mt.addEventListener('click', () => nl.classList.toggle('open'));
+  nl.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nl.classList.remove('open')));
+</script>
+</body>
+</html>

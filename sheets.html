@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TARA BASA PROGRAM Spreadsheet — TARA BASA Forms</title>
+<link rel="icon" href="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- ExcelJS (real .xlsx styles) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<!-- jsPDF + AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{
+  --light-blue:#DCEEFF; --primary:#4A90E2; --dark-blue:#173B63;
+  --accent:#FFD54F; --soft-yellow:#FFF4BF; --white:#FFFFFF;
+  --bg:#F5F9FE; --text:#243447; --text2:#64748B;
+  --border:#DCE5EF; --success:#198754; --error:#DC3545;
+  --shadow:0 4px 16px rgba(23,59,99,.08);
+  --shadow-lg:0 12px 32px rgba(23,59,99,.12);
+  --row-h:40px; --row-h-compact:30px; --head-h:60px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input{font-family:inherit}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* Header */
+.header{background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;z-index:20}
+.header .left{display:flex;align-items:center;gap:14px;min-width:0;flex:1}
+.header .logo{width:40px;height:40px;border-radius:50%;border:2px solid var(--light-blue);flex-shrink:0}
+.header .meta{min-width:0}
+.header .breadcrumb{font-size:.72rem;color:var(--text2);margin-bottom:2px}
+.header .breadcrumb a{color:var(--primary)}
+.header .breadcrumb i{font-size:.6rem;margin:0 4px;color:var(--border)}
+.header h1{font-size:1.1rem;font-weight:700;color:var(--dark-blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
+.header .stats{font-size:.75rem;color:var(--text2);margin-top:2px;display:flex;gap:14px;flex-wrap:wrap}
+.header .stats b{color:var(--primary)}
+.header .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;font-weight:600;font-size:.82rem;transition:.2s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:#3a7bc8;transform:translateY(-1px)}
+.btn-accent{background:var(--accent);color:var(--dark-blue)}
+.btn-accent:hover{background:#ffc91f}
+.btn-ghost{background:#fff;border:1px solid var(--border);color:var(--dark-blue)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-danger{background:var(--error);color:#fff}
+.btn-danger:hover{background:#b02a37}
+.btn-sm{padding:5px 10px;font-size:.78rem}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
+.icon-btn{width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--text2);transition:.2s}
+.icon-btn:hover{background:var(--light-blue);color:var(--primary)}
+.icon-btn.danger:hover{background:#fde8ea;color:var(--error)}
+
+/* Dropdown menu */
+.menu-wrap{position:relative}
+.menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);min-width:220px;padding:6px;display:none;z-index:60}
+.menu.show{display:block;animation:pop .15s}
+.menu button{display:flex;width:100%;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:.84rem;color:var(--text);text-align:left}
+.menu button:hover{background:var(--light-blue)}
+.menu button i{width:18px;text-align:center;color:var(--primary)}
+.menu .divider{height:1px;background:var(--border);margin:4px 6px}
+
+/* Toolbar */
+.toolbar{background:#fff;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;z-index:15}
+.toolbar .search{position:relative;flex:1;min-width:200px;max-width:340px}
+.toolbar .search i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:.82rem}
+.toolbar .search input{width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;outline:none;transition:.2s;background:var(--bg)}
+.toolbar .search input:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(74,144,226,.12)}
+.toolbar select{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;background:#fff;color:var(--text);cursor:pointer;transition:.2s}
+.toolbar select:focus{border-color:var(--primary)}
+.toolbar .divider{width:1px;height:24px;background:var(--border)}
+.toolbar .spacer{flex:1}
+
+/* Formula bar */
+.formula-bar{background:#fff;border-bottom:1px solid var(--border);padding:6px 20px;display:flex;align-items:center;gap:10px;font-size:.82rem;z-index:14}
+.formula-bar .cell-ref{min-width:60px;color:var(--primary);font-weight:700;font-family:monospace;background:var(--light-blue);padding:4px 10px;border-radius:6px;text-align:center}
+.formula-bar .val{flex:1;color:var(--text2);padding:4px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.formula-bar .val.filled{color:var(--text)}
+
+/* Grid */
+.grid-wrap{flex:1;overflow:auto;background:var(--bg);position:relative;will-change:scroll-position;contain:strict}
+.grid{display:inline-block;min-width:100%;background:#fff;font-size:.82rem;position:relative}
+.grid-header{position:sticky;top:0;z-index:10;background:var(--light-blue)}
+.grid-row{display:flex;border-bottom:1px solid var(--border);position:absolute;left:0;right:0;contain:layout paint style;will-change:transform}
+.grid-row.header-row{position:static;min-height:var(--head-h);font-weight:600}
+.grid-cell{display:flex;align-items:center;padding:6px 10px;border-right:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 0 auto;transition:background .1s;position:relative;contain:layout paint style}
+.grid-cell.corner{position:sticky;left:0;top:0;z-index:12;background:var(--light-blue);width:80px;min-width:80px;justify-content:center;font-weight:700;color:var(--dark-blue);border-right:2px solid var(--border)}
+.grid-cell.row-num{position:sticky;left:0;z-index:8;background:var(--light-blue);width:80px;min-width:80px;justify-content:center;color:var(--dark-blue);font-weight:600;font-size:.78rem;border-right:2px solid var(--border);cursor:pointer}
+.grid-cell.col-letter{justify-content:center;background:var(--light-blue);color:var(--dark-blue);font-size:.78rem;font-weight:700;min-height:22px;border-bottom:1px solid var(--border)}
+.grid-cell.col-title{background:var(--light-blue);color:var(--dark-blue);font-size:.82rem;font-weight:600;white-space:normal;line-height:1.25;padding:6px 10px;overflow:hidden;display:flex;align-items:center;border-right:1px solid var(--border)}
+.grid-cell.col-title .inner{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.grid-cell.data-cell{cursor:cell}
+.grid-cell.data-cell:hover{background:var(--light-blue)}
+.grid-cell.selected{background:var(--soft-yellow)!important;outline:2px solid var(--primary);outline-offset:-2px;z-index:5}
+.grid-cell.row-selected{background:var(--soft-yellow)!important}
+.grid-cell.duplicate-cell{background:#FFF0F0!important;color:#B02A37;font-weight:600}
+.grid-cell.duplicate-cell.selected{background:var(--soft-yellow)!important;outline:2px solid var(--error);outline-offset:-2px}
+
+/* Inline editor */
+.inline-editor{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  padding:6px 10px;border:2px solid var(--primary);border-radius:0;font-family:inherit;
+  font-size:.82rem;background:#fff;outline:none;z-index:20;box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+select.inline-editor{appearance:none;cursor:pointer}
+
+/* Row action */
+.row-action-btn{
+  display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:22px;height:22px;border-radius:4px;align-items:center;justify-content:center;
+  color:var(--text2);background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.1);z-index:2;
+}
+.grid-row:hover .row-action-btn{display:flex}
+.row-action-btn:hover{color:var(--error);background:#fde8ea}
+
+/* Loading / Empty */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--text2);gap:14px}
+.spinner-lg{width:40px;height:40px;border:3px solid var(--light-blue);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:70px 20px;color:var(--text2)}
+.empty i{font-size:3rem;color:var(--border);display:block;margin-bottom:16px}
+.empty h3{color:var(--dark-blue);font-size:1.15rem;margin-bottom:8px}
+.empty p{font-size:.9rem;margin-bottom:20px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(23,59,99,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fadeIn .2s;overflow-y:auto}
+.modal-overlay.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{transform:scale(.97);opacity:0}to{transform:scale(1);opacity:1}}
+.modal{background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:88vh;box-shadow:var(--shadow-lg);animation:pop .2s;display:flex;flex-direction:column}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-size:1.05rem;color:var(--dark-blue);display:flex;align-items:center;gap:10px}
+.modal-head h3 i{color:var(--primary)}
+.modal-body{padding:20px 22px;overflow-y:auto}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.modal.confirm{max-width:420px;text-align:center}
+.modal.confirm .modal-body{padding-top:30px}
+.modal.confirm .m-icon{width:60px;height:60px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+.modal.confirm.danger .m-icon{background:#fde8ea;color:var(--error)}
+.modal.confirm.info .m-icon{background:var(--light-blue);color:var(--primary)}
+.modal.confirm p{color:var(--text2);font-size:.92rem}
+
+.detail-row{display:flex;flex-direction:column;gap:5px;padding:12px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-row .q{font-size:.82rem;font-weight:600;color:var(--dark-blue)}
+.detail-row .a{font-size:.9rem;color:var(--text);line-height:1.55;word-break:break-word;white-space:pre-wrap}
+.detail-row .a.empty-answer{color:var(--text2);font-style:italic}
+.detail-meta{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;font-size:.85rem;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.detail-meta b{color:var(--dark-blue);display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.detail-meta span{color:var(--text2);font-family:monospace;font-size:.82rem;word-break:break-all}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:300}
+.toast{background:#fff;border-left:4px solid var(--primary);border-radius:10px;box-shadow:var(--shadow-lg);padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:.9rem;min-width:260px;animation:slideIn .3s}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--error)}
+.toast i{font-size:1.05rem}
+.toast.success i{color:var(--success)}
+.toast.error i{color:var(--error)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Form selector */
+.form-select{max-width:760px;margin:40px auto;padding:0 20px}
+.form-select h2{color:var(--dark-blue);font-size:1.4rem;margin-bottom:8px}
+.form-select p{color:var(--text2);margin-bottom:24px}
+.form-select .list{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.form-select .item{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--border);cursor:pointer;transition:.2s;flex-wrap:wrap}
+.form-select .item:last-child{border-bottom:none}
+.form-select .item:hover{background:var(--bg)}
+.form-select .item b{color:var(--dark-blue);font-size:.95rem}
+.form-select .item small{color:var(--text2);font-size:.78rem;display:block;margin-top:3px}
+
+/* Compact */
+.compact{--row-h:var(--row-h-compact)}
+
+@media(max-width:700px){
+  .header h1{max-width:180px;font-size:1rem}
+  .header .stats{display:none}
+  .toolbar{padding:8px 12px}
+  .toolbar .search{max-width:none}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="left">
+      <img class="logo" src="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png" alt="SSU">
+      <div class="meta">
+        <div class="breadcrumb">
+          <a href="admin.html">Dashboard</a> <i class="fa-solid fa-chevron-right"></i>
+          <a href="admin.html" onclick="event.preventDefault();history.back()">Forms</a> <i class="fa-solid fa-chevron-right"></i>
+          <span id="crumbForm">Spreadsheet</span>
+        </div>
+        <h1 id="formTitle"><i class="fa-solid fa-table"></i> Loading…</h1>
+        <div class="stats">
+          <span><i class="fa-solid fa-inbox"></i> <b id="rowCount">0</b> responses</span>
+          <span><i class="fa-solid fa-clock"></i> <span id="lastUpdated">—</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <button class="btn btn-ghost" onclick="refreshData()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      <div class="menu-wrap">
+        <button class="btn btn-accent" id="exportBtn"><i class="fa-solid fa-file-export"></i> Export <i class="fa-solid fa-caret-down" style="font-size:.7rem"></i></button>
+        <div class="menu" id="exportMenu">
+          <button id="exportXlsx"><i class="fa-solid fa-file-excel"></i> Export as .xlsx</button>
+          <!-- <button id="exportPdf"><i class="fa-solid fa-file-pdf"></i> Export as PDF (Landscape)</button> -->
+          <div class="divider"></div>
+          <button id="exportCsv"><i class="fa-solid fa-file-csv"></i> Export as .csv (raw)</button>
+        </div>
+      </div>
+      <a class="btn btn-ghost" href="admin.html"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar" id="toolbar" style="display:none">
+    <div class="search"><i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchInput" placeholder="Search responses..."></div>
+    <div class="divider"></div>
+    <button class="btn btn-ghost" id="sortAsc" title="Sort ascending"><i class="fa-solid fa-arrow-up-wide-short"></i> Asc</button>
+    <button class="btn btn-ghost" id="sortDesc" title="Sort descending"><i class="fa-solid fa-arrow-down-wide-short"></i> Desc</button>
+    <select id="sortColumn" title="Sort column"><option value="">Sort by…</option></select>
+    <div class="divider"></div>
+    <select id="filterColumn" title="Filter column"><option value="">Filter by…</option></select>
+    <input type="text" id="filterValue" placeholder="Filter value" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;width:140px">
+    <button class="btn btn-ghost" id="clearFilters" title="Clear filters"><i class="fa-solid fa-filter-circle-xmark"></i></button>
+    <button class="btn btn-ghost" id="duplicatesBtn" title="Show duplicate values"><i class="fa-solid fa-clone"></i> Duplicates</button>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" id="densityBtn" title="Toggle row density"><i class="fa-solid fa-bars-staggered"></i> Density</button>
+    <span class="divider"></span>
+    <span style="font-size:.78rem;color:var(--text2)" id="visibleCount"></span>
+  </div>
+
+  <!-- Formula bar -->
+  <div class="formula-bar" id="formulaBar" style="display:none">
+    <div class="cell-ref" id="cellRef">—</div>
+    <div class="val" id="cellVal">Select a cell to view its full value</div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid-wrap" id="gridWrap">
+    <div class="loading-wrap"><div class="spinner-lg"></div><div>Loading spreadsheet…</div></div>
+  </div>
+</div>
+
+<!-- Generic modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-head"><h3 id="modalTitle"><i class="fa-solid fa-circle-info"></i> <span>Title</span></h3>
+      <button class="icon-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal confirm danger" id="confirmBox">
+    <div class="modal-body">
+      <div class="m-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3 id="confirmTitle" style="color:var(--dark-blue);margin-bottom:8px">Confirm</h3>
+      <p id="confirmMsg">Are you sure?</p>
+    </div>
+    <div class="modal-foot" style="justify-content:center;border-top:none;padding-top:0">
+      <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection, query, orderBy, onSnapshot, updateDoc, deleteDoc, where }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC5ZhZkpA7yvGPo7rNfZIXHIgMipsBIIR0",
+  authDomain: "tara-basa-forms.firebaseapp.com",
+  projectId: "tara-basa-forms",
+  storageBucket: "tara-basa-forms.firebasestorage.app",
+  messagingSenderId: "795155191396",
+  appId: "1:795155191396:web:fd8fecf7a89c5976e2b171",
+  measurementId: "G-HSH1PHTZ3X"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ---------------- State ---------------- */
+let currentUser = null;
+let formData = null;
+let formId = null;
+let allResponses = [];
+let filteredResponses = [];
+let compact = false;
+let selectedCell = null;
+let selectedRowId = null;
+let unsubscribeSnapshot = null;
+let sortColumnDir = -1;
+let duplicatesOnly = false;
+let duplicateColumn = null;
+let duplicateValues = new Set();
+let exportInProgress = false;
+
+/* Cache keys to avoid redundant work */
+let lastFilterKey = '';
+let lastSortKey = '';
+
+/* Virtualization */
+const VIRTUAL_BUFFER = 6;
+const ROW_HEIGHT_COMPACT = 30;
+const ROW_HEIGHT_COMFORTABLE = 40;
+let rowHeight = ROW_HEIGHT_COMFORTABLE;
+let scrollRaf = null;
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+/* ---------------- Helpers ---------------- */
+function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+function toast(msg, type='success'){
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}"></i><span></span>`;
+  el.querySelector('span').textContent = msg;
+  $('#toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function debounce(fn, ms){ let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+function fmtDate(ts){
+  if (!ts) return '—';
+  try { const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleString('en-PH', { year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' }); }
+  catch { return '—'; }
+}
+
+function colLetter(i){
+  let s = '';
+  while (i >= 0){ s = String.fromCharCode(65 + (i % 26)) + s; i = Math.floor(i / 26) - 1; }
+  return s;
+}
+
+function formatAnswer(v){
+  if (v === null || v === undefined || v === '') return '';
+  if (Array.isArray(v)) return v.join(', ');
+  return String(v);
+}
+
+/* Pre-compute a search haystack once per response */
+function prepareResponse(r){
+  const answers = r.answers || {};
+  r._hay = (
+    r.id + ' ' + fmtDate(r.submittedAt) + ' ' +
+    Object.values(answers).map(v => Array.isArray(v) ? v.join(' ') : String(v ?? '')).join(' ')
+  ).toLowerCase();
+  return r;
+}
+
+/* ---------------- Modal helpers ---------------- */
+function openModal(title, bodyHTML, footHTML){
+  $('#modalTitle').querySelector('span').textContent = title;
+  $('#modalBody').innerHTML = bodyHTML;
+  $('#modalFoot').innerHTML = footHTML || '<button class="btn btn-ghost" onclick="closeModal()">Close</button>';
+  $('#modalOverlay').classList.add('show');
+}
+function closeModal(){ $('#modalOverlay').classList.remove('show'); }
+window.closeModal = closeModal;
+
+function confirmDialog({title,msg,type='danger',okText='Confirm'}){
+  return new Promise(resolve => {
+    const box = $('#confirmBox');
+    box.className = 'modal confirm ' + type;
+    $('#confirmTitle').textContent = title;
+    $('#confirmMsg').textContent = msg;
+    const ok = $('#confirmOk');
+    ok.className = 'btn ' + (type==='danger'?'btn-danger':'btn-primary');
+    ok.textContent = okText;
+    box.querySelector('.m-icon').innerHTML = type==='danger'
+      ? '<i class="fa-solid fa-triangle-exclamation"></i>'
+      : '<i class="fa-solid fa-circle-info"></i>';
+    $('#confirmOverlay').classList.add('show');
+
+    const cleanup = () => {
+      $('#confirmOverlay').classList.remove('show');
+      ok.removeEventListener('click', onOk);
+      $('#confirmCancel').removeEventListener('click', onCancel);
+    };
+    const onOk = () => { cleanup(); resolve(true); };
+    const onCancel = () => { cleanup(); resolve(false); };
+    ok.addEventListener('click', onOk);
+    $('#confirmCancel').addEventListener('click', onCancel);
+  });
+}
+
+/* ---------------- Auth ---------------- */
+const params = new URLSearchParams(location.search);
+formId = params.get('id');
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user || user.isAnonymous){ window.location.href = 'login.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'admins', user.uid));
+    if (!snap.exists() || snap.data().active !== true){ await signOut(auth); window.location.href = 'login.html'; return; }
+  } catch { await signOut(auth); window.location.href = 'login.html'; return; }
+  currentUser = user;
+  if (formId) await loadForm();
+  else renderFormSelector();
+});
+
+/* ---------------- Load form ---------------- */
+async function loadForm(){
+  try {
+    const snap = await getDoc(doc(db, 'forms', formId));
+    if (!snap.exists()){
+      $('#gridWrap').innerHTML = `<div class="empty"><i class="fa-solid fa-file-circle-xmark"></i>
+        <h3>Form Not Found</h3><p>The form you are looking for does not exist.</p>
+        <a class="btn btn-primary" href="admin.html"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a></div>`;
+      return;
+    }
+    formData = { id:snap.id, ...snap.data() };
+    if (formData.ownerUid !== currentUser.uid){
+      $('#gridWrap').innerHTML = `<div class="empty"><i class="fa-solid fa-lock"></i>
+        <h3>Access Denied</h3><p>You do not have permission to view these responses.</p>
+        <a class="btn btn-primary" href="admin.html"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a></div>`;
+      return;
+    }
+    $('#formTitle').innerHTML = `<i class="fa-solid fa-table" style="color:var(--primary)"></i> ${escapeHtml(formData.title||'Untitled Form')}`;
+    $('#crumbForm').textContent = formData.title || 'Spreadsheet';
+    document.title = `${formData.title || 'Spreadsheet'} — TARA BASA Forms`;
+    $('#toolbar').style.display = 'flex';
+    $('#formulaBar').style.display = 'flex';
+    buildSortFilterOptions();
+    loadResponsesRealtime();
+  } catch(e){
+    console.error(e);
+    $('#gridWrap').innerHTML = `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>
+      <h3>Connection Error</h3><p>Could not load data. Please refresh.</p>
+      <button class="btn btn-primary" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Retry</button></div>`;
+  }
+}
+
+function buildSortFilterOptions(){
+  const sortSel = $('#sortColumn');
+  const filterSel = $('#filterColumn');
+  const cols = [
+    { v:'__submittedAt', l:'Submitted At' },
+    { v:'__id', l:'Submission ID' }
+  ];
+  (formData.questions||[]).forEach((q,i) => cols.push({ v:q.id, l:`${colLetter(i+2)} · ${q.title || 'Question'}` }));
+  sortSel.innerHTML = '<option value="">Sort by…</option>' + cols.map(c => `<option value="${c.v}">${escapeHtml(c.l)}</option>`).join('');
+  filterSel.innerHTML = '<option value="">Filter by…</option>' + cols.map(c => `<option value="${c.v}">${escapeHtml(c.l)}</option>`).join('');
+}
+
+/* ---------------- Real-time responses (with incremental diff) ---------------- */
+function loadResponsesRealtime(){
+  if (unsubscribeSnapshot) unsubscribeSnapshot();
+  $('#gridWrap').innerHTML = `<div class="loading-wrap"><div class="spinner-lg"></div><div>Connecting to live data…</div></div>`;
+
+  const respCol = collection(db, 'forms', formId, 'responses');
+  const q = query(respCol, orderBy('submittedAt', 'desc'));
+
+  unsubscribeSnapshot = onSnapshot(q, (snap) => {
+    const next = snap.docs.map(d => prepareResponse({ id: d.id, ...d.data() }));
+
+    /* Incremental diff: only fully re-render when structure changes */
+    const sameLen = next.length === allResponses.length;
+    const sameIds = sameLen && next.every((r, i) => r.id === allResponses[i]?.id);
+
+    allResponses = next;
+    $('#lastUpdated').textContent = new Date().toLocaleTimeString('en-PH', {hour:'2-digit',minute:'2-digit'});
+    $('#rowCount').textContent = allResponses.length;
+
+    if (!sameIds){
+      lastFilterKey = ''; // force re-filter
+      applyFilters();
+    } else {
+      /* Same rows — just patch visible DOM cells in place */
+      patchVisibleRows();
+      $('#visibleCount').textContent = `Showing ${filteredResponses.length} of ${allResponses.length}`;
+    }
+  }, (error) => {
+    console.error(error);
+    $('#gridWrap').innerHTML = `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>
+      <h3>Failed to Load</h3><p>${escapeHtml(error.message)}</p>
+      <button class="btn btn-primary" onclick="refreshData()"><i class="fa-solid fa-rotate"></i> Retry</button></div>`;
+  });
+}
+
+function refreshData(){ lastFilterKey=''; applyFilters(); toast('Data refreshed'); }
+window.refreshData = refreshData;
+
+/* ---------------- Column helpers ---------------- */
+function getColumnValue(r, col){
+  if (col === '__id') return r.id;
+  if (col === '__submittedAt') return fmtDate(r.submittedAt);
+  const v = r.answers?.[col];
+  return Array.isArray(v) ? v.join(', ') : String(v ?? '');
+}
+
+function buildDuplicateSet(col){
+  const counts = new Map();
+  allResponses.forEach(r => {
+    const v = getColumnValue(r, col).trim().toLowerCase();
+    if (!v) return;
+    counts.set(v, (counts.get(v) || 0) + 1);
+  });
+  const set = new Set();
+  counts.forEach((n, v) => { if (n > 1) set.add(v); });
+  return set;
+}
+
+/* ---------------- Filter / sort (cache-aware) ---------------- */
+function applyFilters(){
+  const term = ($('#searchInput').value || '').toLowerCase().trim();
+  const filterCol = $('#filterColumn').value;
+  const filterVal = ($('#filterValue').value || '').toLowerCase().trim();
+  const sortCol = $('#sortColumn').value;
+  const filterKey = `${term}|${filterCol}|${filterVal}|${duplicatesOnly}|${duplicateColumn}|${sortCol}|${sortColumnDir}`;
+
+  if (filterKey === lastFilterKey && filteredResponses.length) {
+    renderGrid();
+    return;
+  }
+  lastFilterKey = filterKey;
+
+  filteredResponses = allResponses.filter(r => {
+    if (term && !r._hay.includes(term)) return false;
+    if (filterCol && filterVal){
+      const s = getColumnValue(r, filterCol);
+      if (!s.toLowerCase().includes(filterVal)) return false;
+    }
+    return true;
+  });
+
+  if (duplicatesOnly && duplicateColumn){
+    duplicateValues = buildDuplicateSet(duplicateColumn);
+    filteredResponses = filteredResponses.filter(r => {
+      const v = getColumnValue(r, duplicateColumn).trim().toLowerCase();
+      return v && duplicateValues.has(v);
+    });
+  } else {
+    duplicateValues = new Set();
+  }
+
+  if (sortCol){
+    const sortDir = sortColumnDir;
+    filteredResponses.sort((a,b) => {
+      let va, vb;
+      if (sortCol === '__id'){ va = a.id; vb = b.id; }
+      else if (sortCol === '__submittedAt'){ va = a.submittedAt?.seconds || 0; vb = b.submittedAt?.seconds || 0; }
+      else { va = a.answers?.[sortCol]; vb = b.answers?.[sortCol]; }
+      if (Array.isArray(va)) va = va.join(', ');
+      if (Array.isArray(vb)) vb = vb.join(', ');
+      if (typeof va === 'number' && typeof vb === 'number') return sortDir * (va - vb);
+      return sortDir * String(va ?? '').localeCompare(String(vb ?? ''));
+    });
+  }
+
+  renderGrid();
+  $('#rowCount').textContent = allResponses.length;
+  $('#visibleCount').textContent = `Showing ${filteredResponses.length} of ${allResponses.length}`;
+}
+
+$('#sortAsc').addEventListener('click', () => { sortColumnDir = 1; if(!$('#sortColumn').value) $('#sortColumn').value = '__submittedAt'; applyFilters(); });
+$('#sortDesc').addEventListener('click', () => { sortColumnDir = -1; if(!$('#sortColumn').value) $('#sortColumn').value = '__submittedAt'; applyFilters(); });
+$('#sortColumn').addEventListener('change', applyFilters);
+$('#searchInput').addEventListener('input', debounce(applyFilters, 260));
+$('#filterColumn').addEventListener('change', applyFilters);
+$('#filterValue').addEventListener('input', debounce(applyFilters, 280));
+$('#clearFilters').addEventListener('click', () => {
+  $('#searchInput').value = ''; $('#filterColumn').value = ''; $('#filterValue').value = '';
+  $('#sortColumn').value = '';
+  duplicatesOnly = false; duplicateColumn = null; duplicateValues = new Set();
+  $('#duplicatesBtn').classList.remove('btn-primary');
+  $('#duplicatesBtn').classList.add('btn-ghost');
+  lastFilterKey = '';
+  applyFilters(); toast('Filters cleared');
+});
+$('#densityBtn').addEventListener('click', () => {
+  compact = !compact;
+  document.body.classList.toggle('compact', compact);
+  rowHeight = compact ? ROW_HEIGHT_COMPACT : ROW_HEIGHT_COMFORTABLE;
+  renderGrid();
+  toast(compact ? 'Compact view' : 'Comfortable view');
+});
+
+/* ---------------- Duplicates finder ---------------- */
+$('#duplicatesBtn').addEventListener('click', () => {
+  if (duplicatesOnly) {
+    duplicatesOnly = false; duplicateColumn = null; duplicateValues = new Set();
+    $('#duplicatesBtn').classList.remove('btn-primary');
+    $('#duplicatesBtn').classList.add('btn-ghost');
+    lastFilterKey = '';
+    applyFilters();
+    toast('Duplicate filter cleared');
+    return;
+  }
+
+  const cols = [
+    { v:'__submittedAt', l:'Submitted At' },
+    { v:'__id', l:'Submission ID' }
+  ];
+  (formData.questions||[]).forEach((q,i) => cols.push({ v:q.id, l:`${colLetter(i+2)} · ${q.title || 'Question'}` }));
+
+  let defaultCol = cols[0].v;
+  const guess = (formData.questions||[]).find(q => /e-?mail|email/i.test(q.title || ''));
+  if (guess) defaultCol = guess.id;
+
+  const optionsHTML = cols.map(c => `<option value="${c.v}" ${c.v===defaultCol?'selected':''}>${escapeHtml(c.l)}</option>`).join('');
+  openModal(
+    'Find Duplicates',
+    `<div style="margin-bottom:12px;color:var(--text2);font-size:.88rem">
+        Select a column to detect duplicate values. Empty values are ignored.
+      </div>
+      <select id="dupColumnSelect" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;outline:none">
+        ${optionsHTML}
+      </select>
+      <div id="dupPreview" style="margin-top:14px;font-size:.82rem;color:var(--text2)"></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" id="dupApplyBtn"><i class="fa-solid fa-clone"></i> Show Duplicates</button>`
+  );
+
+  const preview = () => {
+    const col = $('#dupColumnSelect').value;
+    const counts = new Map();
+    allResponses.forEach(r => {
+      const v = getColumnValue(r, col).trim().toLowerCase();
+      if (!v) return;
+      counts.set(v, (counts.get(v) || 0) + 1);
+    });
+    const dupGroups = [...counts.entries()].filter(([,n]) => n > 1);
+    const dupRows = dupGroups.reduce((s,[,n]) => s + n, 0);
+    $('#dupPreview').innerHTML = dupGroups.length
+      ? `<i class="fa-solid fa-triangle-exclamation" style="color:var(--error)"></i>
+         Found <b>${dupGroups.length}</b> duplicated value(s) affecting <b>${dupRows}</b> response(s).`
+      : `<i class="fa-solid fa-circle-check" style="color:var(--success)"></i> No duplicates found in this column.`;
+  };
+  $('#dupColumnSelect').addEventListener('change', preview);
+  preview();
+
+  $('#dupApplyBtn').addEventListener('click', () => {
+    duplicateColumn = $('#dupColumnSelect').value;
+    duplicatesOnly = true;
+    closeModal();
+    $('#duplicatesBtn').classList.remove('btn-ghost');
+    $('#duplicatesBtn').classList.add('btn-primary');
+    lastFilterKey = '';
+    applyFilters();
+    toast('Showing duplicate responses');
+  });
+});
+
+/* ---------------- Virtualized Grid ---------------- */
+let gridState = {
+  gridEl: null,
+  bodyEl: null,
+  headerEl: null,
+  totalHeight: 0,
+  bodyTopOffset: 0,
+  colWidths: [],
+  colsCount: 0,
+  rowPool: new Map()   // rowId -> { rowEl, cells: [] }
+};
+
+function colWidth(i){
+  if (i === 0) return 130;
+  if (i === 1) return 170;
+  return 200;
+}
+
+function totalGridWidth(){
+  let w = 80;
+  for (let i = 0; i < gridState.colsCount; i++) w += colWidth(i);
+  return w;
+}
+
+function renderGrid(){
+  const wrap = $('#gridWrap');
+  const questions = formData.questions || [];
+  const cols = questions.length + 2;
+  gridState.colsCount = cols;
+  gridState.colWidths = Array.from({length: cols}, (_, i) => colWidth(i));
+  gridState.rowPool.clear();
+
+  if (!filteredResponses.length){
+    const dupActive = duplicatesOnly && duplicateColumn;
+    wrap.innerHTML = `<div class="empty"><i class="fa-solid ${dupActive?'fa-clone':'fa-magnifying-glass'}"></i>
+      <h3>${dupActive?'No duplicates found':'No matching responses'}</h3>
+      <p>${dupActive?'All values in this column are unique.':'Try adjusting your search or filters.'}</p>
+      <button class="btn btn-ghost" onclick="document.getElementById('clearFilters').click()"><i class="fa-solid fa-filter-circle-xmark"></i> Clear Filters</button></div>`;
+    gridState.gridEl = null; gridState.bodyEl = null; gridState.headerEl = null;
+    return;
+  }
+
+  const prevScrollTop = wrap.scrollTop;
+  wrap.innerHTML = '';
+
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+  grid.style.width = totalGridWidth() + 'px';
+
+  /* --- Header (built once, sticky) --- */
+  const headerWrap = document.createElement('div');
+  headerWrap.className = 'grid-header';
+
+  const letterRow = document.createElement('div');
+  letterRow.className = 'grid-row header-row';
+  const corner1 = document.createElement('div');
+  corner1.className = 'grid-cell corner';
+  corner1.innerHTML = '<i class="fa-solid fa-table-cells"></i>';
+  letterRow.appendChild(corner1);
+  for (let i = 0; i < cols; i++){
+    const c = document.createElement('div');
+    c.className = 'grid-cell col-letter';
+    c.style.width = gridState.colWidths[i] + 'px';
+    c.style.minWidth = c.style.width;
+    c.textContent = colLetter(i);
+    letterRow.appendChild(c);
+  }
+  headerWrap.appendChild(letterRow);
+
+  const titleRow = document.createElement('div');
+  titleRow.className = 'grid-row header-row';
+  const corner2 = document.createElement('div');
+  corner2.className = 'grid-cell corner';
+  corner2.innerHTML = `<span style="flex:1">#</span>`;
+  titleRow.appendChild(corner2);
+
+  const titleFor = (i) => {
+    if (i === 0) return 'Submission ID';
+    if (i === 1) return 'Submitted At';
+    return questions[i-2]?.title || `Q${i-1}`;
+  };
+  for (let i = 0; i < cols; i++){
+    const c = document.createElement('div');
+    c.className = 'grid-cell col-title';
+    c.style.width = gridState.colWidths[i] + 'px';
+    c.style.minWidth = c.style.width;
+    c.title = titleFor(i);
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+    inner.textContent = titleFor(i);
+    c.appendChild(inner);
+    titleRow.appendChild(c);
+  }
+  headerWrap.appendChild(titleRow);
+  grid.appendChild(headerWrap);
+
+  /* --- Body (virtualized) --- */
+  const body = document.createElement('div');
+  body.className = 'grid-body';
+  body.style.position = 'relative';
+  body.style.height = (filteredResponses.length * rowHeight) + 'px';
+  grid.appendChild(body);
+
+  gridState.gridEl = grid;
+  gridState.bodyEl = body;
+  gridState.headerEl = headerWrap;
+  gridState.totalHeight = filteredResponses.length * rowHeight;
+  gridState.bodyTopOffset = headerWrap.offsetHeight;
+
+  wrap.appendChild(grid);
+  wrap.scrollTop = prevScrollTop;
+
+  updateVirtualRows();
+
+  if (!wrap._virtualBound){
+    wrap.addEventListener('scroll', () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        updateVirtualRows();
+        scrollRaf = null;
+      });
+    }, { passive: true });
+    wrap._virtualBound = true;
+  }
+
+  if (!wrap._resizeBound){
+    window.addEventListener('resize', debounce(() => {
+      if (gridState.gridEl) updateVirtualRows(true);
+    }, 150));
+    wrap._resizeBound = true;
+  }
+}
+
+function updateVirtualRows(){
+  const wrap = $('#gridWrap');
+  const body = gridState.bodyEl;
+  if (!body || !gridState.gridEl) return;
+
+  const scrollTop = Math.max(0, wrap.scrollTop - (gridState.bodyTopOffset || 0));
+  const viewportH = wrap.clientHeight;
+
+  const startIdx = Math.max(0, Math.floor(scrollTop / rowHeight) - VIRTUAL_BUFFER);
+  const endIdx = Math.min(filteredResponses.length, Math.ceil((scrollTop + viewportH) / rowHeight) + VIRTUAL_BUFFER);
+
+  /* Build a set of ids we need to display */
+  const needed = new Set();
+  for (let i = startIdx; i < endIdx; i++){
+    const r = filteredResponses[i];
+    if (r) needed.add(r.id);
+  }
+
+  /* Remove rows no longer visible */
+  for (const [rid, entry] of gridState.rowPool){
+    if (!needed.has(rid)){
+      entry.rowEl.remove();
+      gridState.rowPool.delete(rid);
+    }
+  }
+
+  /* Add rows newly visible */
+  const frag = document.createDocumentFragment();
+  let appended = false;
+  for (let i = startIdx; i < endIdx; i++){
+    const r = filteredResponses[i];
+    if (!r || gridState.rowPool.has(r.id)) continue;
+    const row = buildRow(r, i);
+    row.style.top = (i * rowHeight) + 'px';
+    gridState.rowPool.set(r.id, { rowEl: row });
+    frag.appendChild(row);
+    appended = true;
+  }
+  if (appended) body.appendChild(frag);
+}
+
+/* Patch cells in-place when data changes but order is identical */
+function patchVisibleRows(){
+  if (!gridState.rowPool.size) { updateVirtualRows(); return; }
+  const questions = formData.questions || [];
+  for (const [rid, entry] of gridState.rowPool){
+    const r = filteredResponses.find(x => x.id === rid);
+    if (!r) continue;
+    const cells = entry.rowEl.querySelectorAll('.data-cell');
+    /* cells[0] = id, cells[1] = submitted, cells[2..] = answers */
+    if (cells[1]) cells[1].textContent = fmtDate(r.submittedAt) || '—';
+    questions.forEach((q, qi) => {
+      const cell = cells[qi + 2];
+      if (!cell) return;
+      const v = formatAnswer(r.answers?.[q.id]);
+      const disp = v || '—';
+      if (cell.textContent !== disp){
+        cell.textContent = disp;
+        cell.style.color = v ? '' : 'var(--text2)';
+        cell.title = v || '(empty)';
+      }
+    });
+  }
+}
+
+function buildRow(r, ri){
+  const row = document.createElement('div');
+  row.className = 'grid-row';
+  row.dataset.rid = r.id;
+  row.style.height = rowHeight + 'px';
+
+  const numCell = document.createElement('div');
+  numCell.className = 'grid-cell row-num';
+  numCell.innerHTML = `${ri + 2} <button class="row-action-btn" data-del="${r.id}" title="Delete Response"><i class="fa-solid fa-trash"></i></button>`;
+  numCell.addEventListener('click', (e) => {
+    if (e.target.closest('[data-del]')) return;
+    selectRow(r.id);
+  });
+  numCell.querySelector('[data-del]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    deleteResponse(r.id);
+  });
+  row.appendChild(numCell);
+
+  row.appendChild(makeDataCell(r.id, r, 0, '__id', r.id));
+  row.appendChild(makeDataCell(fmtDate(r.submittedAt), r, 1, '__submittedAt', fmtDate(r.submittedAt)));
+
+  const questions = formData.questions || [];
+  questions.forEach((q, qi) => {
+    const val = formatAnswer(r.answers?.[q.id]);
+    row.appendChild(makeDataCell(val, r, qi + 2, q.id, val));
+  });
+
+  return row;
+}
+
+function makeDataCell(text, response, colIndex, qid, rawVal){
+  const c = document.createElement('div');
+  c.className = 'grid-cell data-cell';
+  c.style.width = gridState.colWidths[colIndex] + 'px';
+  c.style.minWidth = c.style.width;
+  c.dataset.rid = response.id;
+  c.dataset.qid = qid;
+  c.dataset.col = colIndex;
+  const display = text === '' ? '' : text;
+  c.textContent = display || '—';
+  if (display === '') c.style.color = 'var(--text2)';
+  c.title = display || '(empty)';
+
+  if (duplicatesOnly && duplicateColumn && qid === duplicateColumn){
+    const norm = String(display || '').trim().toLowerCase();
+    if (norm && duplicateValues.has(norm)) c.classList.add('duplicate-cell');
+  }
+
+  if (qid !== '__id' && qid !== '__submittedAt') {
+    c.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      startEditing(c, response, qid);
+    });
+  }
+  c.addEventListener('click', (e) => {
+    e.stopPropagation();
+    selectCell(c, response, colIndex, qid, rawVal);
+  });
+  return c;
+}
+
+/* ---------------- Inline edit ---------------- */
+function startEditing(cell, response, qid){
+  if (cell.querySelector('input, select')) return;
+  const q = formData.questions.find(x => x.id === qid);
+  const currentVal = response.answers?.[qid];
+  const cellText = cell.textContent === '—' ? '' : cell.textContent;
+  selectCell(cell, response, cell.dataset.col, qid, cellText);
+
+  let editor;
+  if (q && (q.type === 'radio' || q.type === 'dropdown')) {
+    editor = document.createElement('select');
+    editor.className = 'inline-editor';
+    editor.innerHTML = `<option value="">(empty)</option>` + (q.options||[]).map(o => `<option value="${escapeHtml(o)}" ${o===currentVal?'selected':''}>${escapeHtml(o)}</option>`).join('');
+  } else if (q && q.type === 'checkbox') {
+    editor = document.createElement('input');
+    editor.type = 'text';
+    editor.className = 'inline-editor';
+    editor.value = Array.isArray(currentVal) ? currentVal.join(', ') : (currentVal || '');
+    editor.placeholder = 'Comma separated for multiple';
+  } else {
+    editor = document.createElement('input');
+    editor.type = q && q.type === 'number' ? 'number' : 'text';
+    editor.className = 'inline-editor';
+    editor.value = currentVal || '';
+  }
+
+  cell.appendChild(editor);
+  editor.focus();
+
+  let isCancelled = false;
+  const save = async () => {
+    if (isCancelled) return;
+    let newVal = editor.value.trim();
+    if (q && q.type === 'checkbox') {
+      newVal = newVal ? newVal.split(',').map(s => s.trim()).filter(Boolean) : [];
+    }
+    const oldVal = Array.isArray(currentVal) ? currentVal.join(', ') : (currentVal || '');
+    const comparableNew = Array.isArray(newVal) ? newVal.join(', ') : String(newVal);
+    if (comparableNew !== oldVal) {
+      try {
+        const respRef = doc(db, 'forms', formId, 'responses', response.id);
+        await updateDoc(respRef, { [`answers.${qid}`]: newVal });
+        if (!response.answers) response.answers = {};
+        response.answers[qid] = newVal;
+        prepareResponse(response);
+        toast('Response updated');
+      } catch (err) {
+        console.error(err);
+        toast('Failed to update: ' + err.message, 'error');
+      }
+    }
+    editor.remove();
+
+    /* Refresh cell in place — preserves listeners by rebuilding the node */
+    const disp = Array.isArray(newVal) ? newVal.join(', ') : String(newVal || '');
+    const fresh = makeDataCell(disp, response, Number(cell.dataset.col), qid, disp);
+    cell.replaceWith(fresh);
+    gridState.rowPool.clear(); // force re-collect nodes on next scroll tick
+    updateVirtualRows();
+  };
+  editor.addEventListener('blur', save);
+  editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); editor.blur(); }
+    if (e.key === 'Escape') { isCancelled = true; editor.remove(); }
+  });
+}
+
+async function deleteResponse(rid) {
+  const ok = await confirmDialog({
+    title: 'Delete Response?',
+    msg: 'This will permanently delete this submission. This action cannot be undone.',
+    type: 'danger', okText: 'Delete'
+  });
+  if (!ok) return;
+  try {
+    await deleteDoc(doc(db, 'forms', formId, 'responses', rid));
+    toast('Response deleted');
+  } catch (err) {
+    console.error(err);
+    toast('Failed to delete: ' + err.message, 'error');
+  }
+}
+window.deleteResponse = deleteResponse;
+
+/* ---------------- Selection ---------------- */
+function selectCell(cellEl, response, colIndex, qid, val){
+  $$('.grid-cell.selected').forEach(el => el.classList.remove('selected'));
+  cellEl.classList.add('selected');
+  selectedCell = { row: response.id, col: colIndex, qid, val, response };
+  $('#cellRef').textContent = colLetter(Number(colIndex)) + (filteredResponses.findIndex(r => r.id === response.id) + 2);
+  const v = $('#cellVal');
+  v.textContent = val || '(empty)';
+  v.classList.toggle('filled', !!val);
+}
+
+function selectRow(rid){
+  $$('.grid-cell.row-selected').forEach(el => el.classList.remove('row-selected'));
+  const entry = gridState.rowPool.get(rid);
+  if (entry) entry.rowEl.querySelectorAll('.grid-cell').forEach(c => c.classList.add('row-selected'));
+  selectedRowId = rid;
+  const r = filteredResponses.find(x => x.id === rid);
+  if (r) openResponseDetail(r);
+}
+
+/* ---------------- Response detail ---------------- */
+function openResponseDetail(r){
+  const questions = formData.questions || [];
+  const rows = questions.map(q => {
+    const v = formatAnswer(r.answers?.[q.id]);
+    return `<div class="detail-row">
+      <div class="q">${escapeHtml(q.title || 'Question')}${q.required?' <span style="color:var(--error)">*</span>':''}</div>
+      <div class="a ${v?'':'empty-answer'}">${v?escapeHtml(v):'(no answer)'}</div>
+    </div>`;
+  }).join('');
+
+  openModal('Response Details',
+    `<div class="detail-meta">
+      <div><b>Submission ID</b><span>${escapeHtml(r.id)}</span></div>
+      <div><b>Submitted At</b><span>${escapeHtml(fmtDate(r.submittedAt))}</span></div>
+      <div><b>Respondent UID</b><span>${escapeHtml(r.respondentUid || '—')}</span></div>
+      <div><b>Sync Status</b><span style="color:var(--success)"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(r.syncStatus || 'synced')}</span></div>
+    </div>
+    ${rows}`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Close</button>`
+  );
+}
+
+/* ---------------- Export menu ---------------- */
+const exportBtn = $('#exportBtn');
+const exportMenu = $('#exportMenu');
+exportBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  exportMenu.classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+  if (!exportMenu.contains(e.target) && e.target !== exportBtn) exportMenu.classList.remove('show');
+});
+
+/* ---------------- XLSX Export (ExcelJS — real colors) ---------------- */
+$('#exportXlsx').addEventListener('click', () => {
+  exportMenu.classList.remove('show');
+  exportXlsx();
+});
+
+async function exportXlsx(){
+  if (exportInProgress) return;
+  if (!filteredResponses.length){ toast('Nothing to export', 'error'); return; }
+
+  const questions = formData.questions || [];
+  const title = formData.title || 'Responses';
+  const safeTitle = title.replace(/[^a-z0-9]+/gi, '_').toLowerCase();
+  const stamp = new Date().toISOString().slice(0,10);
+
+  exportInProgress = true;
+  const btn = $('#exportXlsx');
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating…';
+
+  try {
+    const headers = ['Submission ID', 'Submitted At', ...questions.map(q => q.title || 'Question')];
+    const rows = filteredResponses.map(r => {
+      const arr = [r.id, fmtDate(r.submittedAt)];
+      questions.forEach(q => arr.push(formatAnswer(r.answers?.[q.id])));
+      return arr;
+    });
+
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'TARA BASA Forms';
+    wb.created = new Date();
+
+    const ws = wb.addWorksheet('Responses', {
+      views: [{ state: 'frozen', ySplit: 1 }]
+    });
+
+    /* Column widths based on header + a sample of rows */
+    const sampleRows = rows.slice(0, 200);
+    ws.columns = headers.map((h, i) => {
+      let max = String(h).length;
+      for (const r of sampleRows){
+        const len = String(r[i] ?? '').length;
+        if (len > max) max = len;
+      }
+      let width;
+      if (i === 0) width = 26;
+      else if (i === 1) width = 22;
+      else width = Math.min(Math.max(max + 2, 14), 50);
+      return { header: h, key: 'c' + i, width };
+    });
+
+    /* Header styling */
+    const headerRow = ws.getRow(1);
+    headerRow.height = 28;
+    headerRow.eachCell((cell, col) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+      cell.fill = {
+        type: 'pattern', pattern: 'solid',
+        fgColor: { argb: col <= 2 ? 'FF4A90E2' : 'FF173B63' }
+      };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cell.border = {
+        top:    { style: 'thin', color: { argb: 'FFDCEEFF' } },
+        bottom: { style: 'thin', color: { argb: 'FFDCEEFF' } },
+        left:   { style: 'thin', color: { argb: 'FFDCEEFF' } },
+        right:  { style: 'thin', color: { argb: 'FFDCEEFF' } }
+      };
+    });
+
+    /* Data rows with alternating fill + borders */
+    rows.forEach((row, ri) => {
+      const r = ws.addRow(row);
+      r.height = 18;
+      const isAlt = ri % 2 === 1;
+      r.eachCell((cell) => {
+        cell.alignment = { vertical: 'middle', wrapText: false };
+        cell.font = { size: 10, color: { argb: 'FF243447' } };
+        cell.border = {
+          top:    { style: 'thin', color: { argb: 'FFDCE5EF' } },
+          bottom: { style: 'thin', color: { argb: 'FFDCE5EF' } },
+          left:   { style: 'thin', color: { argb: 'FFDCE5EF' } },
+          right:  { style: 'thin', color: { argb: 'FFDCE5EF' } }
+        };
+        if (isAlt){
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F9FE' } };
+        }
+      });
+    });
+
+    /* Auto-filter across header row */
+    ws.autoFilter = {
+      from: { row: 1, column: 1 },
+      to:   { row: 1, column: headers.length }
+    };
+
+    /* Sheet tab color */
+    ws.properties.tabColor = { argb: 'FF4A90E2' };
+
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${safeTitle}_responses_${stamp}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    toast(`Exported ${filteredResponses.length} responses to .xlsx`);
+  } catch (err) {
+    console.error(err);
+    toast('XLSX export failed: ' + err.message, 'error');
+  } finally {
+    exportInProgress = false;
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+  }
+}
+
+/* ---------------- PDF Export (landscape, no cut columns) ---------------- */
+$('#exportPdf').addEventListener('click', () => {
+  exportMenu.classList.remove('show');
+  exportPdf();
+});
+
+function exportPdf(){
+  if (exportInProgress) return;
+  if (!filteredResponses.length){ toast('Nothing to export', 'error'); return; }
+
+  const questions = formData.questions || [];
+  const title = formData.title || 'Responses';
+  const safeTitle = title.replace(/[^a-z0-9]+/gi, '_').toLowerCase();
+  const stamp = new Date().toISOString().slice(0,10);
+
+  exportInProgress = true;
+  const btn = $('#exportPdf');
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating…';
+
+  setTimeout(() => {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 24;
+      const usable = pageW - margin * 2;
+
+      /* Header band */
+      doc.setFillColor(23, 59, 99);
+      doc.rect(0, 0, pageW, 44, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(title, margin, 28);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text(`Exported ${new Date().toLocaleString('en-PH')} · ${filteredResponses.length} responses`,
+        pageW - margin, 28, { align: 'right' });
+
+      /* Build table data with truncation to keep rows short */
+      const MAX_LEN = 140;
+      const head = [['#', 'ID', 'Submitted At', ...questions.map(q => q.title || 'Question')]];
+      const body = filteredResponses.map((r, i) => {
+        const arr = [
+          String(i + 1),
+          r.id.length > 10 ? r.id.slice(0, 8) + '…' : r.id,
+          fmtDate(r.submittedAt)
+        ];
+        questions.forEach(q => {
+          let v = formatAnswer(r.answers?.[q.id]) || '—';
+          if (v.length > MAX_LEN) v = v.slice(0, MAX_LEN - 3) + '…';
+          arr.push(v);
+        });
+        return arr;
+      });
+
+      /* Dynamic column widths that ALWAYS fit the page */
+      const fixed = [22, 64, 78];   // #, ID, date
+      const fixedSum = fixed.reduce((a, b) => a + b, 0);
+      const qCount = Math.max(questions.length, 1);
+      let qBudget = usable - fixedSum;
+      let qW = Math.floor(qBudget / qCount);
+      if (qW < 36){ qW = 36; }      // floor so text is still readable
+
+      /* If even at 36pt we'd overflow, shrink font + cell padding */
+      let baseFont = 6.5;
+      let cellPad = 3;
+      const totalNeeded = fixedSum + qW * qCount;
+      if (totalNeeded > usable){
+        baseFont = 5.8;
+        cellPad = 2.2;
+      }
+
+      const colStyles = {};
+      fixed.forEach((w, i) => colStyles[i] = { cellWidth: w });
+      for (let i = 0; i < questions.length; i++) colStyles[3 + i] = { cellWidth: qW };
+
+      doc.autoTable({
+        head,
+        body,
+        startY: 56,
+        margin: { left: margin, right: margin, top: 56, bottom: 30 },
+        tableWidth: usable,           // force fit within page
+        styles: {
+          font: 'helvetica',
+          fontSize: baseFont,
+          cellPadding: cellPad,
+          overflow: 'linebreak',
+          lineColor: [220, 229, 239],
+          lineWidth: 0.4,
+          textColor: [36, 52, 71],
+          valign: 'middle',
+          minCellHeight: 13
+        },
+        headStyles: {
+          fillColor: [74, 144, 226],
+          textColor: 255,
+          fontStyle: 'bold',
+          fontSize: baseFont + 0.7,
+          halign: 'left',
+          cellPadding: cellPad + 1.5
+        },
+        alternateRowStyles: { fillColor: [245, 249, 254] },
+        columnStyles: colStyles,
+        didDrawPage: () => {
+          const pageNum = doc.internal.getNumberOfPages();
+          doc.setFontSize(8);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`Page ${pageNum}`, pageW - margin, pageH - 12, { align: 'right' });
+          doc.text('TARA BASA Forms', margin, pageH - 12);
+        }
+      });
+
+      doc.save(`${safeTitle}_responses_${stamp}.pdf`);
+      toast(`Exported ${filteredResponses.length} responses to PDF`);
+    } catch (err) {
+      console.error(err);
+      toast('PDF export failed: ' + err.message, 'error');
+    } finally {
+      exportInProgress = false;
+      btn.disabled = false;
+      btn.innerHTML = origHTML;
+    }
+  }, 30);
+}
+
+/* ---------------- CSV export (raw fallback) ---------------- */
+$('#exportCsv').addEventListener('click', () => {
+  exportMenu.classList.remove('show');
+  exportCsv();
+});
+function exportCsv(){
+  if (!filteredResponses.length){ toast('Nothing to export', 'error'); return; }
+  const questions = formData.questions || [];
+  const headers = ['Submission ID', 'Submitted At', ...questions.map(q => q.title || 'Question')];
+  const rows = filteredResponses.map(r => {
+    const arr = [r.id, fmtDate(r.submittedAt)];
+    questions.forEach(q => arr.push(formatAnswer(r.answers?.[q.id])));
+    return arr;
+  });
+  const csvEscape = (v) => {
+    const s = v == null ? '' : String(v);
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  };
+  const csv = [headers, ...rows].map(row => row.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob(['\ufeff' + csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeTitle = (formData.title || 'responses').replace(/[^a-z0-9]+/gi, '_').toLowerCase();
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `${safeTitle}_responses_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast(`Exported ${filteredResponses.length} responses to CSV`);
+}
+
+/* ---------------- Form selector ---------------- */
+async function renderFormSelector(){
+  $('#toolbar').style.display = 'none';
+  $('#formulaBar').style.display = 'none';
+  const wrap = $('#gridWrap');
+  wrap.innerHTML = `<div class="loading-wrap"><div class="spinner-lg"></div><div>Loading forms…</div></div>`;
+  try {
+    const q = query(collection(db, 'forms'), where('ownerUid','==',currentUser.uid));
+    const snap = await getDocs(q);
+    const forms = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    if (!forms.length){
+      wrap.innerHTML = `<div class="empty"><i class="fa-solid fa-file-circle-plus"></i>
+        <h3>No forms yet</h3><p>Create a form to start collecting responses.</p>
+        <a class="btn btn-primary" href="admin.html"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a></div>`;
+      return;
+    }
+    wrap.innerHTML = `<div class="form-select">
+      <h2>Choose a Form</h2>
+      <p>Select a form to open its response spreadsheet.</p>
+      <div class="list">
+        ${forms.map(f => `<div class="item" onclick="location.href='spreedsheets.html?id=${encodeURIComponent(f.id)}'">
+          <div><b>${escapeHtml(f.title||'Untitled')}</b>
+            <small><i class="fa-solid fa-inbox"></i> ${f.responseCount||0} responses · ${f.status==='published'?'Published':'Draft'}</small></div>
+          <i class="fa-solid fa-arrow-right" style="color:var(--primary)"></i>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  } catch(e){
+    wrap.innerHTML = `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>
+      <h3>Failed to Load Forms</h3><p>${escapeHtml(e.message)}</p>
+      <button class="btn btn-primary" onclick="location.reload()">Retry</button></div>`;
+  }
+}
+
+/* ---------------- Global escape ---------------- */
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+$('#modalOverlay').addEventListener('click', e => { if (e.target === $('#modalOverlay')) closeModal(); });
+</script>
+</body>
+</html>

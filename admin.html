@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Tara Basa Program · DSWD</title>
+<link rel="icon" href="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{
+  --light-red:#FEE9E7;       /* soft red background */
+  --primary:#C62828;         /* deep red */
+  --dark-red:#8B1E1E;        /* darker red for headings */
+  --accent:#FFB74D;          /* warm accent */
+  --soft-yellow:#FFF4BF;     /* light accent */
+  --white:#FFFFFF;
+  --bg:#FFF9F8;              /* warm off-white */
+  --text:#2E1E1E;
+  --text2:#7A5C5C;
+  --border:#F0D9D7;
+  --success:#198754;
+  --error:#B71C1C;
+  --shadow:0 4px 16px rgba(139,30,30,.08);
+  --shadow-lg:0 12px 32px rgba(139,30,30,.12);
+  --sidebar-w:250px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit}
+.layout{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:var(--sidebar-w);background:var(--dark-red);color:#fff;position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column;transition:.3s;z-index:60}
+.sidebar .logo{padding:20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar .logo img{width:40px;height:40px;border-radius:50%;border:2px solid var(--accent)}
+.sidebar .logo b{font-size:.95rem;display:block}
+.sidebar .logo small{font-size:.7rem;opacity:.7}
+.sidebar nav{flex:1;padding:16px 12px;overflow-y:auto}
+.sidebar nav button{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;color:rgba(255,255,255,.75);font-size:.92rem;font-weight:500;margin-bottom:4px;transition:.2s;text-align:left}
+.sidebar nav button i{width:20px;text-align:center;font-size:.95rem}
+.sidebar nav button:hover{background:rgba(255,255,255,.08);color:#fff}
+.sidebar nav button.active{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(198,40,40,.4)}
+.sidebar .sb-footer{padding:14px;border-top:1px solid rgba(255,255,255,.1);font-size:.72rem;opacity:.6;text-align:center}
+
+/* Main */
+.main{flex:1;margin-left:var(--sidebar-w);display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:40}
+.topbar h1{font-size:1.2rem;font-weight:700;color:var(--dark-red)}
+.topbar .sub{font-size:.82rem;color:var(--text2);font-weight:400;margin-top:2px}
+.topbar .user{display:flex;align-items:center;gap:12px}
+.topbar .user .avatar{width:38px;height:38px;border-radius:50%;background:var(--light-red);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700}
+.topbar .user .who{text-align:right;font-size:.82rem}
+.topbar .user .who b{display:block;color:var(--dark-red)}
+.topbar .user .who span{color:var(--text2)}
+.menu-btn{display:none;font-size:1.2rem;color:var(--dark-red);padding:8px}
+
+.content{padding:28px;flex:1}
+.page{display:none;animation:fade .3s}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Cards / stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:26px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow);transition:.2s}
+.stat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.stat .si{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.stat:nth-child(1) .si{background:var(--light-red);color:var(--primary)}
+.stat:nth-child(2) .si{background:#e3f5ea;color:var(--success)}
+.stat:nth-child(3) .si{background:var(--soft-yellow);color:#b8860b}
+.stat:nth-child(4) .si{background:#fde8ea;color:var(--error)}
+.stat .sv{font-size:1.7rem;font-weight:800;color:var(--dark-red);line-height:1}
+.stat .sl{font-size:.82rem;color:var(--text2);margin-top:4px}
+
+.panel{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
+.panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.panel-head h3{font-size:1rem;color:var(--dark-red);font-weight:700;display:flex;align-items:center;gap:9px}
+.panel-head h3 i{color:var(--primary)}
+.panel-body{padding:20px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:9px;font-weight:600;font-size:.88rem;transition:.2s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(198,40,40,.28)}
+.btn-primary:hover{background:#A31C1C;transform:translateY(-1px)}
+.btn-accent{background:var(--accent);color:var(--dark-red)}
+.btn-accent:hover{background:#FFA726}
+.btn-ghost{background:#fff;border:1px solid var(--border);color:var(--dark-red)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-danger{background:var(--error);color:#fff}
+.btn-danger:hover{background:#8B1E1E}
+.btn-sm{padding:7px 12px;font-size:.82rem}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
+.icon-btn{width:34px;height:34px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--text2);transition:.2s;border:1px solid transparent}
+.icon-btn:hover{background:var(--light-red);color:var(--primary)}
+.icon-btn.danger:hover{background:#fde8ea;color:var(--error)}
+.icon-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Search */
+.search{position:relative}
+.search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:.85rem}
+.search input{width:100%;padding:10px 14px 10px 36px;border:1.5px solid var(--border);border-radius:9px;font-size:.9rem;outline:none;transition:.2s}
+.search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(198,40,40,.12)}
+
+/* Form list */
+.form-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.form-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);transition:.2s;display:flex;flex-direction:column;gap:12px}
+.form-card:hover{box-shadow:var(--shadow-lg);border-color:var(--light-red)}
+.fc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.fc-title{font-size:1.02rem;font-weight:700;color:var(--dark-red);word-break:break-word}
+.fc-desc{font-size:.85rem;color:var(--text2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
+.fc-meta{display:flex;gap:14px;font-size:.76rem;color:var(--text2);flex-wrap:wrap}
+.fc-meta span{display:inline-flex;align-items:center;gap:5px}
+.badge{padding:4px 10px;border-radius:99px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.badge.published{background:#e3f5ea;color:var(--success)}
+.badge.draft{background:#fef3d6;color:#b8860b}
+.badge.closed{background:#fde8ea;color:var(--error)}
+.fc-actions{display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:12px;margin-top:auto}
+
+/* Form builder */
+.builder-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.q-block{background:#fff;border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);transition:.2s}
+.q-block.editing{border-left-color:var(--accent);box-shadow:var(--shadow-lg)}
+.q-block .qh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.q-block .qt{font-weight:600;color:var(--dark-red);font-size:.98rem}
+.q-block .qt .req{color:var(--error);margin-left:4px}
+.q-block .qtype{font-size:.72rem;background:var(--light-red);color:var(--primary);padding:3px 8px;border-radius:6px;font-weight:600;display:inline-flex;align-items:center;gap:5px;margin-top:6px}
+.q-block .qd{font-size:.84rem;color:var(--text2);margin-top:6px}
+.q-opts{margin-top:10px;font-size:.85rem;color:var(--text2)}
+.q-opts li{margin-left:18px;margin-top:3px}
+.q-actions{display:flex;gap:4px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+
+/* Required toggle pill */
+.req-toggle{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.72rem;font-weight:600;
+  padding:4px 10px;border-radius:99px;
+  background:#fff;border:1.5px solid var(--border);
+  color:var(--text2);margin-top:6px;margin-left:6px;
+  cursor:pointer;transition:.2s;
+}
+.req-toggle:hover{border-color:var(--primary);color:var(--primary)}
+.req-toggle.on{background:#fde8ea;border-color:var(--error);color:var(--error)}
+.req-toggle.on:hover{background:#fbd5d9}
+.req-toggle i{font-size:.7rem}
+
+/* Sections */
+.section-block{
+  background:#fff;border:1px solid var(--border);border-radius:14px;
+  margin-bottom:18px;box-shadow:var(--shadow);overflow:hidden;
+  transition:.2s;
+}
+.section-block.active-target{border-color:var(--primary);box-shadow:0 0 0 3px rgba(198,40,40,.15)}
+.section-head{
+  padding:14px 18px;background:linear-gradient(180deg,#FFF9F8,#fff);
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.section-head-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.section-num{
+  width:32px;height:32px;border-radius:8px;background:var(--primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;
+}
+.section-actions{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.section-badge{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  padding:3px 8px;border-radius:6px;background:var(--light-red);color:var(--primary);
+  display:inline-flex;align-items:center;gap:5px;
+}
+.section-badge.logic {
+  background: #fff4bf; color: #7a5b00;
+}
+.section-body{padding:14px 16px 6px}
+.q-move-select{
+  font-size:.74rem;padding:5px 8px;border:1px solid var(--border);
+  border-radius:6px;background:#fff;color:var(--text2);cursor:pointer;outline:none;
+  max-width:120px;
+}
+.q-move-select:focus{border-color:var(--primary);color:var(--primary)}
+
+.builder-side{position:sticky;top:88px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.builder-side h4{font-size:.9rem;color:var(--dark-red);margin-bottom:12px;font-weight:700}
+.builder-side .hint{font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.5}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.type-btn{padding:12px 8px;border:1.5px solid var(--border);border-radius:10px;background:#fff;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.74rem;font-weight:600;color:var(--text2);transition:.2s;text-align:center}
+.type-btn i{font-size:1.05rem;color:var(--primary)}
+.type-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--light-red);transform:translateY(-2px)}
+
+/* Rich-text editor */
+.rte-wrap{
+  border:1.5px solid var(--border);border-radius:9px;background:#fff;
+  transition:.2s;overflow:hidden;
+}
+.rte-wrap:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(198,40,40,.12)}
+.rte-toolbar{
+  display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid var(--border);
+  background:var(--bg);flex-wrap:wrap;
+}
+.rte-toolbar button{
+  width:28px;height:28px;border-radius:6px;color:var(--text2);
+  display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;
+  transition:.15s;
+}
+.rte-toolbar button:hover{background:var(--light-red);color:var(--primary)}
+.rte-toolbar button.on{background:var(--primary);color:#fff}
+.rte-toolbar .sep{width:1px;height:20px;background:var(--border);margin:4px 4px}
+.rte-input{
+  padding:10px 12px;font-size:.9rem;color:var(--text);outline:none;
+  min-height:38px;line-height:1.5;word-wrap:break-word;
+}
+.rte-input:empty:before{
+  content:attr(data-placeholder);color:#94a3b8;pointer-events:none;
+}
+.rte-input b,.rte-input strong{font-weight:700}
+.rte-input i,.rte-input em{font-style:italic}
+.rte-input u{text-decoration:underline}
+.rte-input p{margin:0 0 6px}
+.rte-input p:last-child{margin-bottom:0}
+.rte-input[data-multiline="true"]{min-height:70px;white-space:pre-wrap}
+
+/* Form fields */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.83rem;font-weight:600;color:var(--dark-red);margin-bottom:6px}
+.field input[type=text],.field input[type=number],.field input[type=email],.field input[type=url],.field input[type=date],.field textarea,.field select{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:.9rem;outline:none;transition:.2s;background:#fff;color:var(--text)
+}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(198,40,40,.12)}
+.field textarea{resize:vertical;min-height:70px}
+.field .hint{font-size:.76rem;color:var(--text2);margin-top:4px}
+.switch{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.switch input{display:none}
+.switch .track{width:42px;height:24px;background:var(--border);border-radius:99px;position:relative;transition:.2s}
+.switch .track::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+.switch input:checked + .track{background:var(--primary)}
+.switch input:checked + .track::after{transform:translateX(18px)}
+.switch span{font-size:.88rem;color:var(--text)}
+
+/* Option rows */
+.opt-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.opt-row input{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;outline:none}
+.opt-row input:focus{border-color:var(--primary)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(139,30,30,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fadeIn .2s;overflow-y:auto}
+.modal-overlay.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:18px;max-width:600px;width:100%;box-shadow:var(--shadow-lg);animation:pop .25s;max-height:92vh;display:flex;flex-direction:column}
+.modal.wide{max-width:760px}
+@keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-size:1.1rem;color:var(--dark-red);display:flex;align-items:center;gap:10px}
+.modal-head h3 i{color:var(--primary)}
+.modal-body{padding:22px 24px;overflow-y:auto}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.modal.confirm{max-width:420px;text-align:center}
+.modal.confirm .modal-body{padding-top:30px}
+.modal.confirm .m-icon{width:60px;height:60px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+.modal.confirm.danger .m-icon{background:#fde8ea;color:var(--error)}
+.modal.confirm.success .m-icon{background:#e3f5ea;color:var(--success)}
+.modal.confirm.info .m-icon{background:var(--light-red);color:var(--primary)}
+.modal.confirm p{color:var(--text2);font-size:.92rem}
+
+/* Share modal */
+.share-url{display:flex;gap:8px;margin-bottom:16px}
+.share-url input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:.85rem;background:var(--bg);color:var(--text);outline:none;font-family:monospace}
+.qr-box{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;background:var(--bg);border-radius:12px;margin-top:14px}
+.qr-box canvas,.qr-box img{background:#fff;padding:8px;border-radius:8px}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:300}
+.toast{background:#fff;border-left:4px solid var(--primary);border-radius:10px;box-shadow:var(--shadow-lg);padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:.9rem;min-width:260px;animation:slideIn .3s}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--error)}
+.toast i{font-size:1.05rem}
+.toast.success i{color:var(--success)}
+.toast.error i{color:var(--error)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Loading */
+.loader{display:flex;justify-content:center;padding:40px}
+.spinner-lg{width:38px;height:38px;border:3px solid var(--light-red);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:50px 20px;color:var(--text2)}
+.empty i{font-size:2.5rem;color:var(--border);margin-bottom:14px;display:block}
+.empty h3{color:var(--dark-red);font-size:1.05rem;margin-bottom:6px}
+.empty p{font-size:.9rem}
+
+/* Preview */
+.preview-frame{background:var(--bg);border-radius:12px;padding:22px}
+
+/* Settings */
+.settings-profile{
+  display:flex;align-items:center;gap:18px;padding-bottom:20px;
+  border-bottom:1px solid var(--border);margin-bottom:18px;flex-wrap:wrap;
+}
+.settings-avatar{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),#A31C1C);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;font-weight:700;flex-shrink:0;
+  box-shadow:0 8px 20px rgba(198,40,40,.3);
+}
+.settings-identity{min-width:0;flex:1}
+.settings-name{font-size:1.05rem;font-weight:700;color:var(--dark-red)}
+.settings-email{font-size:.86rem;color:var(--text2);margin-top:2px;word-break:break-all}
+.settings-role{
+  font-size:.8rem;color:var(--primary);margin-top:6px;
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--light-red);padding:4px 10px;border-radius:99px;font-weight:600;
+}
+.settings-meta-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;margin-bottom:8px;
+}
+.settings-meta{
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;flex-direction:column;gap:3px;
+}
+.settings-meta .lbl{
+  font-size:.72rem;color:var(--text2);text-transform:uppercase;
+  letter-spacing:.04em;font-weight:600;
+}
+.settings-meta .val{font-size:.9rem;color:var(--dark-red);font-weight:600;word-break:break-all}
+.settings-meta .val.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem}
+.settings-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.settings-row{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:16px;padding:14px 0;border-bottom:1px solid var(--border);
+}
+.settings-row:last-child{border-bottom:none;padding-bottom:0}
+.settings-row:first-child{padding-top:0}
+.settings-row-text{min-width:0;flex:1}
+.settings-row-text b{display:block;font-size:.92rem;color:var(--dark-red);margin-bottom:3px}
+.settings-row-text span{font-size:.82rem;color:var(--text2);line-height:1.5}
+
+/* Responsive */
+.overlay-sidebar{display:none}
+@media(max-width:960px){
+  .builder-grid{grid-template-columns:1fr}
+  .builder-side{position:static}
+}
+@media(max-width:820px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:none}
+  .main{margin-left:0}
+  .menu-btn{display:block}
+  .overlay-sidebar{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:55}
+  .overlay-sidebar.show{display:block}
+  .content{padding:18px}
+  .topbar{padding:12px 16px}
+  .topbar .user .who{display:none}
+}
+@media(max-width:560px){
+  .type-grid{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat{padding:16px;gap:12px}
+  .stat .si{width:44px;height:44px;font-size:1.05rem}
+  .stat .sv{font-size:1.3rem}
+  .section-head{flex-direction:column;align-items:stretch}
+  .section-actions{justify-content:flex-end}
+  .settings-row{flex-direction:column;align-items:flex-start}
+  .settings-actions .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <img src="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png" alt="DSWD">
+      <div><b>Tara Basa Program</b><small>DSWD Admin Panel</small></div>
+    </div>
+    <nav>
+      <button data-page="overview" class="active"><i class="fa-solid fa-chart-pie"></i> Overview</button>
+      <button data-page="forms"><i class="fa-solid fa-file-lines"></i> My Forms</button>
+      <button data-page="create"><i class="fa-solid fa-circle-plus"></i> Create Form</button>
+      <button data-page="responses"><i class="fa-solid fa-inbox"></i> Responses</button>
+      <button data-page="sheets"><i class="fa-solid fa-table"></i> Spreadsheet Manager</button>
+      <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+      <button id="logoutBtn" style="color:#ffb1b1"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </nav>
+    <div class="sb-footer">v1.0 · Firestore-backed</div>
+  </aside>
+  <div class="overlay-sidebar" id="overlaySidebar"></div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="menu-btn" id="menuBtn"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <h1 id="pageTitle">Overview</h1>
+          <div class="sub" id="pageSub">Welcome back to your dashboard</div>
+        </div>
+      </div>
+      <div class="user">
+        <div class="who"><b id="userEmail">—</b><span>Administrator</span></div>
+        <div class="avatar" id="userAvatar"><i class="fa-solid fa-user-shield"></i></div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Overview -->
+      <div class="page active" id="page-overview">
+        <div class="stats">
+          <div class="stat"><div class="si"><i class="fa-solid fa-file-lines"></i></div>
+            <div><div class="sv" id="statForms">0</div><div class="sl">Total Forms</div></div></div>
+          <div class="stat"><div class="si"><i class="fa-solid fa-globe"></i></div>
+            <div><div class="sv" id="statPublished">0</div><div class="sl">Published Forms</div></div></div>
+          <div class="stat"><div class="si"><i class="fa-solid fa-inbox"></i></div>
+            <div><div class="sv" id="statResponses">0</div><div class="sl">Total Responses</div></div></div>
+          <div class="stat"><div class="si"><i class="fa-solid fa-unlock"></i></div>
+            <div><div class="sv" id="statOpen">0</div><div class="sl">Accepting Responses</div></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3><i class="fa-solid fa-clock-rotate-left"></i> Recently Updated Forms</h3>
+            <button class="btn btn-ghost btn-sm" onclick="switchPage('forms')"><i class="fa-solid fa-arrow-right"></i> View All</button></div>
+          <div class="panel-body" id="recentForms"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3><i class="fa-solid fa-bolt"></i> Recent Submission Activity</h3></div>
+          <div class="panel-body" id="recentActivity"></div>
+        </div>
+      </div>
+
+      <!-- My Forms -->
+      <div class="page" id="page-forms">
+        <div class="panel">
+          <div class="panel-head">
+            <h3><i class="fa-solid fa-file-lines"></i> My Forms</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <div class="search" style="min-width:220px"><i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="formSearch" placeholder="Search forms..."></div>
+              <button class="btn btn-primary btn-sm" onclick="startNewForm()"><i class="fa-solid fa-plus"></i> New Form</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="formsContainer" class="form-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create/Edit Form -->
+      <div class="page" id="page-create">
+        <div id="builderHeader" class="panel" style="margin-bottom:20px">
+          <div class="panel-head">
+            <h3><i class="fa-solid fa-pen-ruler"></i> <span id="builderTitle">Create New Form</span></h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-ghost btn-sm" onclick="previewForm()"><i class="fa-solid fa-eye"></i> Preview</button>
+              <button class="btn btn-ghost btn-sm" onclick="saveForm(false)"><i class="fa-solid fa-floppy-disk"></i> Save Draft</button>
+              <button class="btn btn-primary btn-sm" onclick="saveForm(true)"><i class="fa-solid fa-cloud-arrow-up"></i> Save & Publish</button>
+              <button class="btn btn-ghost btn-sm" onclick="switchPage('forms')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="builder-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-head"><h3><i class="fa-solid fa-circle-info"></i> Form Details</h3></div>
+              <div class="panel-body">
+                <div class="field">
+                  <label>Form Title *</label>
+                  <div id="fTitle"></div>
+                </div>
+                <div class="field">
+                  <label>Description</label>
+                  <div id="fDesc"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3><i class="fa-solid fa-layer-group"></i> Sections &amp; Questions</h3>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <span id="qCount" style="font-size:.82rem;color:var(--text2)">0 questions</span>
+                  <button class="btn btn-ghost btn-sm" onclick="addSection()"><i class="fa-solid fa-plus"></i> Add Section</button>
+                </div>
+              </div>
+              <div class="panel-body" id="sectionsContainer">
+                <div class="empty"><i class="fa-solid fa-square-plus"></i>
+                  <h3>No sections yet</h3>
+                  <p>Click "Add Section" above, or a question type on the right, to begin.</p></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="builder-side">
+            <h4><i class="fa-solid fa-plus-circle" style="color:var(--primary)"></i> Add Question</h4>
+            <p class="hint">
+              Questions are added to the section marked
+              <b style="color:var(--primary)">Adding here</b>.
+            </p>
+            <div class="type-grid" id="typeGrid"></div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- Responses -->
+      <div class="page" id="page-responses">
+        <div class="panel">
+          <div class="panel-head"><h3><i class="fa-solid fa-inbox"></i> Select a Form to View Responses</h3></div>
+          <div class="panel-body" id="responsesList"></div>
+        </div>
+      </div>
+
+      <!-- Spreadsheet Manager -->
+      <div class="page" id="page-sheets">
+        <div class="panel">
+          <div class="panel-head"><h3><i class="fa-solid fa-table"></i> Open a Form's Spreadsheet</h3></div>
+          <div class="panel-body" id="sheetsList"></div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="page" id="page-settings">
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3><i class="fa-solid fa-user-shield"></i> Account</h3>
+            <span class="badge published" style="text-transform:none;letter-spacing:0">
+              <i class="fa-solid fa-circle-check"></i> Verified Administrator
+            </span>
+          </div>
+          <div class="panel-body">
+            <div class="settings-profile">
+              <div class="settings-avatar" id="settingsAvatar">A</div>
+              <div class="settings-identity">
+                <div class="settings-name" id="settingsName">Administrator</div>
+                <div class="settings-email" id="settingsEmail">—</div>
+                <div class="settings-role">
+                  <i class="fa-solid fa-shield-halved"></i> Administrator — full access
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-meta-grid">
+              <div class="settings-meta">
+                <span class="lbl">Account UID</span>
+                <span class="val mono" id="settingsUid">—</span>
+              </div>
+              <div class="settings-meta">
+                <span class="lbl">Last Sign-In</span>
+                <span class="val" id="settingsLastSignIn">—</span>
+              </div>
+              <div class="settings-meta">
+                <span class="lbl">Email Verified</span>
+                <span class="val" id="settingsVerified">—</span>
+              </div>
+              <div class="settings-meta">
+                <span class="lbl">Admin Since</span>
+                <span class="val" id="settingsSince">—</span>
+              </div>
+              <div class="settings-meta" id="metaDepartment" style="display:none">
+                <span class="lbl">Department</span>
+                <span class="val" id="settingsDepartment">—</span>
+              </div>
+              <div class="settings-meta" id="metaPosition" style="display:none">
+                <span class="lbl">Position</span>
+                <span class="val" id="settingsPosition">—</span>
+              </div>
+              <div class="settings-meta" id="metaPhone" style="display:none">
+                <span class="lbl">Phone</span>
+                <span class="val" id="settingsPhone">—</span>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn btn-ghost" onclick="sendPasswordReset()">
+                <i class="fa-solid fa-key"></i> Send Password Reset Email
+              </button>
+              <button class="btn btn-ghost" onclick="refreshAccountInfo()">
+                <i class="fa-solid fa-rotate"></i> Refresh Account Info
+              </button>
+              <button class="btn btn-danger" onclick="confirmLogout()">
+                <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3><i class="fa-solid fa-database"></i> Data &amp; Privacy</h3>
+          </div>
+          <div class="panel-body" style="font-size:.9rem;color:var(--text2);line-height:1.7">
+            <p>All forms and responses are stored securely in Cloud Firestore. Access is restricted by Firestore security rules.</p>
+            <p style="margin-top:10px">Only authorized administrators with an active record in the <code>admins</code> collection can read or modify form data.</p>
+            <p style="margin-top:14px">
+              <i class="fa-solid fa-shield-halved" style="color:var(--success)"></i>
+              Respondents are authenticated anonymously and cannot read, modify, or delete other submissions.
+            </p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3><i class="fa-solid fa-circle-info"></i> System Information</h3></div>
+          <div class="panel-body">
+            <div class="settings-meta-grid">
+              <div class="settings-meta">
+                <span class="lbl">Project ID</span>
+                <span class="val mono">tara-basa-forms</span>
+              </div>
+              <div class="settings-meta">
+                <span class="lbl">Firebase SDK</span>
+                <span class="val mono">10.12.2</span>
+              </div>
+              <div class="settings-meta">
+                <span class="lbl">App Version</span>
+                <span class="val mono">v1.0</span>
+              </div>
+              <div class="settings-meta">
+                <span class="lbl">Region</span>
+                <span class="val mono">asia-southeast1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Generic Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-head"><h3 id="modalTitle"><i class="fa-solid fa-circle-info"></i> <span>Title</span></h3>
+      <button class="icon-btn" onclick="closeModal()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal confirm" id="confirmBox">
+    <div class="modal-body">
+      <div class="m-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3 id="confirmTitle" style="color:var(--dark-red);margin-bottom:8px">Confirm</h3>
+      <p id="confirmMsg">Are you sure?</p>
+    </div>
+    <div class="modal-foot" style="justify-content:center;border-top:none;padding-top:0">
+      <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc,
+  deleteDoc, query, where, orderBy, limit, serverTimestamp, increment }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC5ZhZkpA7yvGPo7rNfZIXHIgMipsBIIR0",
+  authDomain: "tara-basa-forms.firebaseapp.com",
+  projectId: "tara-basa-forms",
+  storageBucket: "tara-basa-forms.firebasestorage.app",
+  messagingSenderId: "795155191396",
+  appId: "1:795155191396:web:fd8fecf7a89c5976e2b171",
+  measurementId: "G-HSH1PHTZ3X"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ---------- State ---------- */
+let currentUser = null;
+let currentAdminDoc = {};       // full /admins/{uid} Firestore document
+let forms = [];
+let currentForm = null;
+let editingFormId = null;
+let currentSections = [];       // [{ id, title, titleHtml, description, descriptionHtml, questions:[] }]
+let activeSectionId = null;
+
+/* ---------- Sign-out / auth guards ---------- */
+let loggingOut = false;         // guards the null that fires DURING signOut
+let authNullTimer = null;       // fires if Firebase never delivers a second callback with a user
+
+/* ---------- Question types ---------- */
+const QUESTION_TYPES = [
+  { type:'short',    label:'Short Answer',   icon:'fa-font' },
+  { type:'paragraph',label:'Paragraph',      icon:'fa-align-left' },
+  { type:'radio',    label:'Multiple Choice',icon:'fa-circle-dot' },
+  { type:'checkbox', label:'Checkboxes',     icon:'fa-square-check' },
+  { type:'dropdown', label:'Dropdown',       icon:'fa-caret-down' },
+  { type:'date',     label:'Date',           icon:'fa-calendar-days' },
+  { type:'time',     label:'Time',           icon:'fa-clock' },
+  { type:'number',   label:'Number',         icon:'fa-hashtag' },
+  { type:'email',    label:'Email',          icon:'fa-envelope' },
+  { type:'phone',    label:'Phone Number',   icon:'fa-phone' },
+  { type:'scale',    label:'Linear Scale',   icon:'fa-sliders' }
+];
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const uid = () => Math.random().toString(36).slice(2,10);
+
+function escapeHtml(s){
+  const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML;
+}
+
+/* Sanitize HTML to allow only formatting tags we support */
+function sanitizeHtml(html){
+  if (!html) return '';
+  const allowed = ['B','I','U','STRONG','EM','BR','P','DIV'];
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const walk = (node) => {
+    const children = [...node.childNodes];
+    for (const child of children){
+      if (child.nodeType === 1){
+        if (!allowed.includes(child.tagName)){
+          while (child.firstChild) node.insertBefore(child.firstChild, child);
+          node.removeChild(child);
+          continue;
+        }
+        [...child.attributes].forEach(a => child.removeAttribute(a.name));
+        walk(child);
+      } else if (child.nodeType !== 3){
+        node.removeChild(child);
+      }
+    }
+  };
+  walk(tmp);
+  return tmp.innerHTML;
+}
+function htmlToText(html){
+  const d = document.createElement('div');
+  d.innerHTML = html || '';
+  return (d.textContent || '').trim();
+}
+
+function fmtDate(ts){
+  if (!ts) return '—';
+  try {
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleString('en-PH', { year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+  } catch { return '—'; }
+}
+function fmtDateShort(ts){
+  if (!ts) return '—';
+  try { const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'2-digit' }); }
+  catch { return '—'; }
+}
+
+function toast(msg, type='success'){
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}"></i><span></span>`;
+  el.querySelector('span').textContent = msg;
+  $('#toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function openModal(title, bodyHTML, footHTML){
+  $('#modalTitle').querySelector('span').textContent = title;
+  $('#modalBody').innerHTML = bodyHTML;
+  $('#modalFoot').innerHTML = footHTML || '<button class="btn btn-ghost" onclick="closeModal()">Close</button>';
+  $('#modalOverlay').classList.add('show');
+}
+function closeModal(){ $('#modalOverlay').classList.remove('show'); }
+window.closeModal = closeModal;
+
+function confirmDialog({title,msg,type='danger',okText='Confirm'}){
+  return new Promise(resolve => {
+    const box = $('#confirmBox');
+    box.className = 'modal confirm ' + type;
+    $('#confirmTitle').textContent = title;
+    $('#confirmMsg').textContent = msg;
+    const ok = $('#confirmOk');
+    ok.className = 'btn ' + (type==='danger'?'btn-danger':'btn-primary');
+    ok.textContent = okText;
+    box.querySelector('.m-icon').innerHTML = type==='danger'
+      ? '<i class="fa-solid fa-triangle-exclamation"></i>'
+      : type==='success' ? '<i class="fa-solid fa-circle-check"></i>'
+      : '<i class="fa-solid fa-circle-info"></i>';
+    $('#confirmOverlay').classList.add('show');
+
+    const cleanup = () => {
+      $('#confirmOverlay').classList.remove('show');
+      ok.removeEventListener('click', onOk);
+      $('#confirmCancel').removeEventListener('click', onCancel);
+    };
+    const onOk = () => { cleanup(); resolve(true); };
+    const onCancel = () => { cleanup(); resolve(false); };
+    ok.addEventListener('click', onOk);
+    $('#confirmCancel').addEventListener('click', onCancel);
+  });
+}
+
+/* ---------- Rich Text Editor ---------- */
+function createRichEditor({ value='', placeholder='', multiline=false, onChange }){
+  const wrap = document.createElement('div');
+  wrap.className = 'rte-wrap';
+
+  const toolbar = document.createElement('div');
+  toolbar.className = 'rte-toolbar';
+  toolbar.innerHTML = `
+    <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><i class="fa-solid fa-bold"></i></button>
+    <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i class="fa-solid fa-italic"></i></button>
+    <button type="button" data-cmd="underline" title="Underline (Ctrl+U)"><i class="fa-solid fa-underline"></i></button>
+  `;
+
+  const input = document.createElement('div');
+  input.className = 'rte-input';
+  input.setAttribute('contenteditable','true');
+  input.setAttribute('role','textbox');
+  input.setAttribute('aria-multiline', multiline ? 'true' : 'false');
+  input.dataset.placeholder = placeholder;
+  if (multiline) input.dataset.multiline = 'true';
+  input.innerHTML = sanitizeHtml(value || '');
+
+  wrap.appendChild(toolbar);
+  wrap.appendChild(input);
+
+  const refreshToolbar = () => {
+    try {
+      toolbar.querySelector('[data-cmd="bold"]').classList.toggle('on', document.queryCommandState('bold'));
+      toolbar.querySelector('[data-cmd="italic"]').classList.toggle('on', document.queryCommandState('italic'));
+      toolbar.querySelector('[data-cmd="underline"]').classList.toggle('on', document.queryCommandState('underline'));
+    } catch(_){}
+  };
+
+  toolbar.querySelectorAll('button[data-cmd]').forEach(btn => {
+    btn.addEventListener('mousedown', e => {
+      e.preventDefault();
+      const cmd = btn.dataset.cmd;
+      document.execCommand(cmd, false, null);
+      input.focus();
+      refreshToolbar();
+      if (onChange) onChange(getHtml());
+    });
+  });
+
+  input.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey){
+      const k = e.key.toLowerCase();
+      if (k === 'b' || k === 'i' || k === 'u'){
+        e.preventDefault();
+        document.execCommand(k === 'b' ? 'bold' : k === 'i' ? 'italic' : 'underline', false, null);
+        refreshToolbar();
+        if (onChange) onChange(getHtml());
+      }
+    }
+  });
+
+  const fire = () => {
+    const sanitized = sanitizeHtml(input.innerHTML);
+    if (sanitized !== input.innerHTML) input.innerHTML = sanitized;
+    if (onChange) onChange(sanitized);
+  };
+  input.addEventListener('input', fire);
+  input.addEventListener('blur', fire);
+  input.addEventListener('keyup', refreshToolbar);
+  input.addEventListener('mouseup', refreshToolbar);
+
+  function getHtml(){ return sanitizeHtml(input.innerHTML); }
+  function getText(){ return htmlToText(input.innerHTML); }
+  function setHtml(html){ input.innerHTML = sanitizeHtml(html || ''); }
+
+  return { el: wrap, input, getHtml, getText, setHtml };
+}
+
+/* ---------- Admin identity ---------- */
+function applyAdminIdentity(){
+  if (!currentUser) return;
+  const a = currentUser;
+  const docData = currentAdminDoc || {};
+
+  const displayName = docData.name
+    || docData.displayName
+    || a.displayName
+    || (a.email ? a.email.split('@')[0] : 'Administrator');
+
+  const email = docData.email || a.email || '—';
+  const role = docData.role || 'Administrator';
+  const initial = (displayName || email || 'A').charAt(0).toUpperCase();
+
+  // Topbar
+  const emailEl = $('#userEmail');
+  if (emailEl) emailEl.textContent = email;
+  const avatarEl = $('#userAvatar');
+  if (avatarEl) avatarEl.textContent = initial;
+
+  // Settings profile
+  const sName = $('#settingsName');     if (sName) sName.textContent = displayName;
+  const sEmail = $('#settingsEmail');   if (sEmail) sEmail.textContent = email;
+  const sAvatar = $('#settingsAvatar'); if (sAvatar) sAvatar.textContent = initial;
+
+  // Role pill
+  const rolePill = document.querySelector('.settings-role');
+  if (rolePill){
+    rolePill.innerHTML =
+      '<i class="fa-solid fa-shield-halved"></i> ' +
+      escapeHtml(role) + ' — full access';
+  }
+
+  // Keep the settings meta grid in sync
+  hydrateAccountInfo();
+}
+
+/* ---------- Auth ---------- */
+let authResolved = false;
+
+onAuthStateChanged(auth, async (user) => {
+  if (loggingOut) return;
+
+  if (!user && !authResolved) {
+    if (authNullTimer) return;
+    authNullTimer = setTimeout(() => {
+      authNullTimer = null;
+      if (!authResolved && !loggingOut) window.location.replace('login.html');
+    }, 8000);
+    return;
+  }
+
+  if (user && authNullTimer){
+    clearTimeout(authNullTimer);
+    authNullTimer = null;
+  }
+
+  if (!user) return;
+  if (user.isAnonymous) { window.location.replace('login.html'); return; }
+
+  // Verify the admin record. Any failure here shows a retry card
+  // instead of bouncing back to login — so we never loop.
+  let snap;
+  try {
+    snap = await getDoc(doc(db, 'admins', user.uid));
+  } catch (err) {
+    console.error('[AUTH] getDoc failed:', err);
+    showAuthError('Could not contact Firestore. Check your network and try again.', err);
+    return;
+  }
+
+  if (!snap.exists()){
+    console.error('[AUTH] No /admins/' + user.uid + ' document.');
+    showAuthError(
+      'No administrator record was found for this account (UID ' + user.uid + '). ' +
+      'Create a document in the admins collection with this exact ID and active: true.',
+      null
+    );
+    return;
+  }
+
+  const data = snap.data() || {};
+  if (data.active !== true){
+    console.error('[AUTH] /admins/' + user.uid + ' has active =', data.active);
+    showAuthError(
+      'Your administrator record exists but is not active. Set active: true in /admins/' + user.uid + '.',
+      null
+    );
+    return;
+  }
+
+  // Success
+  authResolved = true;
+  if (authNullTimer){ clearTimeout(authNullTimer); authNullTimer = null; }
+
+  currentUser = user;
+  currentAdminDoc = data;
+  applyAdminIdentity();
+  loadForms();
+});
+
+/* Show a detailed, retryable error card instead of redirecting. */
+function showAuthError(message, errObj){
+  const detail = errObj && errObj.message ? escapeHtml(errObj.message) : '';
+  document.body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;
+                min-height:100vh;font-family:Inter,system-ui,sans-serif;
+                background:#FFF9F8;color:#2E1E1E;padding:24px;text-align:center">
+      <div style="background:#fff;border:1px solid #F0D9D7;border-radius:16px;
+                  padding:40px;max-width:520px;box-shadow:0 12px 32px rgba(139,30,30,.12)">
+        <div style="font-size:2rem;color:#B71C1C;margin-bottom:14px">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h2 style="color:#8B1E1E;margin-bottom:8px">Could Not Verify Admin Access</h2>
+        <p style="color:#7A5C5C;font-size:.92rem;margin-bottom:20px;line-height:1.6">
+          ${escapeHtml(message)}
+        </p>
+        ${detail ? `<p style="color:#94a3b8;font-size:.78rem;font-family:monospace;margin-bottom:20px">${detail}</p>` : ''}
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button onclick="location.reload()"
+                  style="background:#C62828;color:#fff;border:none;padding:11px 22px;
+                         border-radius:10px;font-weight:600;font-size:.9rem;cursor:pointer">
+            <i class="fa-solid fa-rotate"></i> Retry
+          </button>
+          <a href="login.html"
+             style="background:#fff;color:#8B1E1E;border:1px solid #F0D9D7;padding:11px 22px;
+                    border-radius:10px;font-weight:600;font-size:.9rem;text-decoration:none">
+            Back to Login
+          </a>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ---------- Navigation ---------- */
+const pageTitles = {
+  overview: ['Overview','Welcome back to your dashboard'],
+  forms: ['My Forms','Manage all your forms'],
+  create: ['Form Builder','Create or edit a form'],
+  responses: ['Responses','Choose a form to view submissions'],
+  sheets: ['Spreadsheet Manager','Open a form in spreadsheet view'],
+  settings: ['Settings','Account and system preferences']
+};
+function switchPage(page){
+  $$('.sidebar nav button[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page===page));
+  $$('.page').forEach(p => p.classList.remove('active'));
+  $('#page-' + page).classList.add('active');
+  const [t,s] = pageTitles[page] || ['',''];
+  $('#pageTitle').textContent = t;
+  $('#pageSub').textContent = s;
+  closeSidebar();
+  if (page === 'overview') renderOverview();
+  if (page === 'forms') renderForms();
+  if (page === 'responses') renderResponsesList();
+  if (page === 'sheets') renderSheetsList();
+  if (page === 'settings') hydrateAccountInfo();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+window.switchPage = switchPage;
+
+$$('.sidebar nav button[data-page]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.dataset.page;
+    if (page === 'create' && !editingFormId && !currentForm){
+      startNewForm();   // initializes currentForm, currentSections, editors
+      return;
+    }
+    switchPage(page);
+  });
+});
+$('#menuBtn').addEventListener('click', () => {
+  $('#sidebar').classList.add('open'); $('#overlaySidebar').classList.add('show');
+});
+function closeSidebar(){ $('#sidebar').classList.remove('open'); $('#overlaySidebar').classList.remove('show'); }
+$('#overlaySidebar').addEventListener('click', closeSidebar);
+
+$('#logoutBtn').addEventListener('click', confirmLogout);
+function confirmLogout(){
+  confirmDialog({title:'Sign Out', msg:'Are you sure you want to sign out of the admin panel?', type:'danger', okText:'Sign Out'})
+    .then(async ok => {
+      if (!ok) return;
+      loggingOut = true;
+      if (authNullTimer){ clearTimeout(authNullTimer); authNullTimer = null; }
+      try { await signOut(auth); } catch(e){ console.error('Sign out failed:', e); }
+      try {
+        indexedDB.deleteDatabase('firebaseLocalStorageDb');
+        localStorage.removeItem('firebase:authUser:' + firebaseConfig.apiKey + ':[DEFAULT]');
+      } catch(_){}
+      window.location.replace('login.html');
+    });
+}
+window.confirmLogout = confirmLogout;
+
+/* ---------- Form builder top editors ---------- */
+let fTitleEditor, fDescEditor;
+function initTopEditors(){
+  if (fTitleEditor && fDescEditor) return;
+  const titleHost = $('#fTitle');
+  const descHost = $('#fDesc');
+  if (!titleHost || !descHost) return;
+
+  titleHost.innerHTML = '';
+  descHost.innerHTML = '';
+
+  fTitleEditor = createRichEditor({
+    value: '', placeholder: 'e.g. Tara Basa Reading Assessment 2025', multiline: false
+  });
+  fDescEditor = createRichEditor({
+    value: '', placeholder: 'Brief description shown under the title', multiline: true
+  });
+  titleHost.appendChild(fTitleEditor.el);
+  descHost.appendChild(fDescEditor.el);
+}
+window.initTopEditors = initTopEditors;
+
+/* ---------- Load Forms ---------- */
+async function loadForms(){
+  try {
+    const q = query(collection(db, 'forms'), where('ownerUid','==',currentUser.uid));
+    const snap = await getDocs(q);
+    forms = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    forms.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+    renderOverview();
+    renderForms();
+    renderResponsesList();
+    renderSheetsList();
+  } catch (e) {
+    console.error(e);
+    toast('Failed to load forms. Check connection.', 'error');
+  }
+}
+
+/* ---------- Overview ---------- */
+function renderOverview(){
+  $('#statForms').textContent = forms.length;
+  $('#statPublished').textContent = forms.filter(f => f.status==='published').length;
+  const totalResp = forms.reduce((s,f) => s + (f.responseCount || 0), 0);
+  $('#statResponses').textContent = totalResp;
+  const open = forms.filter(f => f.status==='published' && f.settings?.acceptingResponses !== false).length;
+  $('#statOpen').textContent = open;
+
+  const recent = forms.slice(0,4);
+  const rc = $('#recentForms');
+  if (!recent.length){
+    rc.innerHTML = '<div class="empty"><i class="fa-solid fa-file-circle-plus"></i><h3>No forms yet</h3><p>Create your first form to see it here.</p></div>';
+  } else {
+    rc.innerHTML = recent.map(f => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap">
+        <div style="min-width:0">
+          <div style="font-weight:600;color:var(--dark-red);word-break:break-word">${escapeHtml(f.title||'Untitled Form')}</div>
+          <div style="font-size:.78rem;color:var(--text2);margin-top:3px">
+            <i class="fa-solid fa-clock"></i> Updated ${fmtDateShort(f.updatedAt)}
+            · <i class="fa-solid fa-inbox"></i> ${f.responseCount||0} responses
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="badge ${f.status==='published'?'published':'draft'}">${f.status==='published'?'Published':'Draft'}</span>
+          <button class="btn btn-ghost btn-sm" onclick="editForm('${f.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+        </div>
+      </div>`).join('');
+  }
+
+  const ra = $('#recentActivity');
+  const withResp = forms.filter(f => (f.responseCount||0) > 0).slice(0,4);
+  if (!withResp.length){
+    ra.innerHTML = '<div class="empty"><i class="fa-solid fa-inbox"></i><h3>No responses yet</h3><p>Submissions will appear here once respondents start answering.</p></div>';
+  } else {
+    ra.innerHTML = withResp.map(f => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);gap:10px">
+        <div style="font-size:.9rem;color:var(--dark-red)"><i class="fa-solid fa-file-lines" style="color:var(--primary)"></i> ${escapeHtml(f.title)}</div>
+        <div style="font-size:.82rem;color:var(--text2)"><b style="color:var(--primary)">${f.responseCount}</b> responses</div>
+      </div>`).join('');
+  }
+}
+
+/* ---------- Forms list ---------- */
+function renderForms(){
+  const term = ($('#formSearch')?.value || '').toLowerCase();
+  const list = forms.filter(f => !term || (f.title||'').toLowerCase().includes(term) || (f.description||'').toLowerCase().includes(term));
+  const c = $('#formsContainer');
+  if (!list.length){
+    c.innerHTML = `<div class="empty" style="grid-column:1/-1"><i class="fa-solid fa-file-circle-plus"></i><h3>${forms.length?'No matching forms':'No forms yet'}</h3><p>${forms.length?'Try a different search term.':'Click "New Form" to create your first form.'}</p></div>`;
+    return;
+  }
+  c.innerHTML = list.map(f => `
+    <div class="form-card">
+      <div class="fc-top">
+        <div style="min-width:0">
+          <div class="fc-title">${escapeHtml(f.title||'Untitled Form')}</div>
+        </div>
+        <span class="badge ${f.status==='published'?(f.settings?.acceptingResponses!==false?'published':'closed'):'draft'}">
+          ${f.status==='published'?(f.settings?.acceptingResponses!==false?'Published':'Closed'):'Draft'}
+        </span>
+      </div>
+      <div class="fc-desc">${escapeHtml(f.description||'No description')}</div>
+      <div class="fc-meta">
+        <span><i class="fa-solid fa-calendar"></i> ${fmtDateShort(f.createdAt)}</span>
+        <span><i class="fa-solid fa-inbox"></i> ${f.responseCount||0} responses</span>
+      </div>
+      <div class="fc-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editForm('${f.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+        <button class="btn btn-ghost btn-sm" onclick="previewFormById('${f.id}')"><i class="fa-solid fa-eye"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="openSheets('${f.id}')"><i class="fa-solid fa-table"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="shareForm('${f.id}')"><i class="fa-solid fa-share-nodes"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="togglePublish('${f.id}')">
+          <i class="fa-solid ${f.status==='published'?'fa-eye-slash':'fa-globe'}"></i>
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="duplicateForm('${f.id}')" title="Duplicate"><i class="fa-solid fa-copy"></i></button>
+        <button class="icon-btn danger" onclick="deleteForm('${f.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+$('#formSearch')?.addEventListener('input', renderForms);
+
+/* ---------- Responses list ---------- */
+function renderResponsesList(){
+  const c = $('#responsesList');
+  if (!forms.length){
+    c.innerHTML = '<div class="empty"><i class="fa-solid fa-inbox"></i><h3>No forms available</h3><p>Create a form to start collecting responses.</p></div>';
+    return;
+  }
+  c.innerHTML = forms.map(f => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap">
+      <div style="min-width:0">
+        <div style="font-weight:600;color:var(--dark-red)">${escapeHtml(f.title||'Untitled')}</div>
+        <div style="font-size:.8rem;color:var(--text2);margin-top:4px">
+          <i class="fa-solid fa-inbox"></i> ${f.responseCount||0} responses · Updated ${fmtDateShort(f.updatedAt)}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="openSheets('${f.id}')"><i class="fa-solid fa-table"></i> View Responses</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderSheetsList(){
+  const c = $('#sheetsList');
+  if (!forms.length){
+    c.innerHTML = '<div class="empty"><i class="fa-solid fa-table"></i><h3>No forms available</h3><p>Create a form first.</p></div>';
+    return;
+  }
+  c.innerHTML = forms.map(f => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:600;color:var(--dark-red)">${escapeHtml(f.title||'Untitled')}</div>
+        <div style="font-size:.8rem;color:var(--text2);margin-top:4px"><i class="fa-solid fa-database"></i> ${f.responseCount||0} rows</div>
+      </div>
+      <button class="btn btn-accent btn-sm" onclick="openSheets('${f.id}')"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Spreadsheet</button>
+    </div>`).join('');
+}
+
+/* ---------- Form Builder ---------- */
+const typeGrid = $('#typeGrid');
+typeGrid.innerHTML = QUESTION_TYPES.map(t => `
+  <button class="type-btn" data-type="${t.type}"><i class="fa-solid ${t.icon}"></i><span>${t.label}</span></button>
+`).join('');
+typeGrid.querySelectorAll('.type-btn').forEach(b => {
+  b.addEventListener('click', () => addQuestion(b.dataset.type));
+});
+
+const newSection = (title) => ({
+  id: 's_' + uid(),
+  title: title ?? 'Untitled Section',
+  description: '',
+  titleHtml: '',
+  descriptionHtml: '',
+  questions: []
+});
+
+function defaultSettings(){
+  return {
+    themeColor:'#C62828', headerImage:'', submitText:'Submit',
+    confirmationMessage:'Thank you! Your response has been recorded.',
+    acceptingResponses:true, allowMultiple:true, closingMessage:'',
+    deadline:null, allowEditing:false
+  };
+}
+
+function startNewForm(){
+  editingFormId = null;
+  currentForm = { title:'', titleHtml:'', description:'', descriptionHtml:'', settings: defaultSettings() };
+  currentSections = [ newSection('Section 1') ];
+  activeSectionId = currentSections[0].id;
+  $('#builderTitle').textContent = 'Create New Form';
+  initTopEditors();
+  fTitleEditor.setHtml('');
+  fDescEditor.setHtml('');
+  renderSections();
+  switchPage('create');
+}
+window.startNewForm = startNewForm;
+
+function editForm(id){
+  const f = forms.find(x => x.id === id);
+  if (!f) return;
+  editingFormId = id;
+  currentForm = {
+    title: f.title || '',
+    titleHtml: f.titleHtml || '',
+    description: f.description || '',
+    descriptionHtml: f.descriptionHtml || '',
+    settings: f.settings || defaultSettings()
+  };
+
+  if (Array.isArray(f.sections) && f.sections.length){
+    currentSections = JSON.parse(JSON.stringify(f.sections));
+    currentSections.forEach(s => {
+      if (!s.questions) s.questions = [];
+      if (s.titleHtml == null) s.titleHtml = '';
+      if (s.descriptionHtml == null) s.descriptionHtml = '';
+    });
+  } else if (Array.isArray(f.questions) && f.questions.length){
+    currentSections = [ {
+      id:'s_' + uid(),
+      title:'Section 1',
+      titleHtml:'',
+      description:'',
+      descriptionHtml:'',
+      questions: JSON.parse(JSON.stringify(f.questions))
+    } ];
+  } else {
+    currentSections = [ newSection('Section 1') ];
+  }
+  activeSectionId = currentSections[0].id;
+
+  $('#builderTitle').textContent = 'Edit Form';
+  initTopEditors();
+  fTitleEditor.setHtml(currentForm.titleHtml || escapeHtml(currentForm.title));
+  fDescEditor.setHtml(currentForm.descriptionHtml || escapeHtml(currentForm.description));
+  renderSections();
+  switchPage('create');
+}
+window.editForm = editForm;
+
+function addSection(){
+  const s = newSection('Section ' + (currentSections.length + 1));
+  currentSections.push(s);
+  activeSectionId = s.id;
+  renderSections();
+}
+window.addSection = addSection;
+
+function deleteSection(sid){
+  if (currentSections.length === 1){
+    toast('A form needs at least one section', 'error');
+    return;
+  }
+  const s = currentSections.find(x => x.id === sid);
+  const count = s?.questions?.length || 0;
+  const msg = count
+    ? `This section contains ${count} question${count===1?'':'s'}. Delete both the section and its questions?`
+    : 'Delete this section?';
+  confirmDialog({ title:'Delete Section', msg, type:'danger', okText:'Delete' })
+    .then(ok => {
+      if (!ok) return;
+      currentSections = currentSections.filter(x => x.id !== sid);
+      if (activeSectionId === sid) activeSectionId = currentSections[0].id;
+      renderSections();
+      toast('Section deleted');
+    });
+}
+window.deleteSection = deleteSection;
+
+function moveSection(sid, dir){
+  const i = currentSections.findIndex(s => s.id === sid);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= currentSections.length) return;
+  [currentSections[i], currentSections[j]] = [currentSections[j], currentSections[i]];
+  renderSections();
+}
+window.moveSection = moveSection;
+
+function setActiveSection(sid){
+  activeSectionId = sid;
+  renderSections();
+}
+window.setActiveSection = setActiveSection;
+
+function addQuestion(type){
+  const sec = currentSections.find(s => s.id === activeSectionId) || currentSections[0];
+  if (!sec){ toast('Add a section first', 'error'); return; }
+  const q = {
+    id:'q_' + uid(),
+    type,
+    title: '',
+    titleHtml: '',
+    description: '',
+    descriptionHtml: '',
+    required: false,
+    options: (['radio','checkbox','dropdown'].includes(type)) ? ['Option 1','Option 2'] : [],
+    scaleMin: 1, scaleMax: 5,
+    scaleMinLabel:'', scaleMaxLabel:'',
+    branching: {}
+  };
+  sec.questions.push(q);
+  renderSections();
+  setTimeout(() => {
+    const el = document.querySelector(`[data-qid="${q.id}"] .q-title-host .rte-input`);
+    el?.focus();
+  }, 50);
+}
+
+function findQuestion(qid){
+  for (const s of currentSections){
+    const q = s.questions.find(x => x.id === qid);
+    if (q) return { section:s, question:q };
+  }
+  return null;
+}
+
+function totalQuestions(){
+  return currentSections.reduce((n,s) => n + s.questions.length, 0);
+}
+
+function renderSections(){
+  const c = $('#sectionsContainer');
+  const total = totalQuestions();
+  $('#qCount').textContent = total + ' question' + (total===1?'':'s') +
+    ' · ' + currentSections.length + ' section' + (currentSections.length===1?'':'s');
+
+  if (!currentSections.length){
+    c.innerHTML = `<div class="empty"><i class="fa-solid fa-layer-group"></i>
+      <h3>No sections yet</h3><p>Click "Add Section" to create one.</p></div>`;
+    return;
+  }
+
+  // Identify target sections for conditional logic
+  const targetSections = {};
+  currentSections.forEach((s) => {
+    s.questions.forEach((q) => {
+      if (q.branching && Object.keys(q.branching).length > 0) {
+        Object.values(q.branching).forEach((targetId) => {
+          if (!targetSections[targetId]) targetSections[targetId] = [];
+          targetSections[targetId].push(q.title || 'Question');
+        });
+      }
+    });
+  });
+
+  c.innerHTML = currentSections.map((s, si) => {
+    const isActive = s.id === activeSectionId;
+    const isTarget = targetSections[s.id];
+    
+    let targetBadge = '';
+    if (isTarget) {
+      const uniqueSources = [...new Set(targetSections[s.id])];
+      targetBadge = `<span class="section-badge logic" title="Only shown if respondent selects specific answers on: ${escapeHtml(uniqueSources.join(', '))}"><i class="fa-solid fa-code-branch"></i> Conditional Target</span>`;
+    }
+
+    const questionsHtml = s.questions.length
+      ? s.questions.map((q, qi) => renderQuestionCard(q, qi, si)).join('')
+      : '';
+    return `<div class="section-block ${isActive?'active-target':''}" data-sid="${s.id}">
+      <div class="section-head">
+        <div class="section-head-left">
+          <div class="section-num" ${isTarget ? 'style="background:var(--accent);color:var(--dark-red)"' : ''}>${si+1}</div>
+          <div style="flex:1;min-width:0">
+            <div class="s-title-host" data-sid="${s.id}"></div>
+            <div class="s-desc-host" data-sid="${s.id}" style="margin-top:4px"></div>
+            ${targetBadge ? `<div style="margin-top:6px">${targetBadge}</div>` : ''}
+          </div>
+        </div>
+        <div class="section-actions">
+          ${isActive
+            ? '<span class="section-badge"><i class="fa-solid fa-arrow-down"></i> Adding here</span>'
+            : `<button class="btn btn-ghost btn-sm" onclick="setActiveSection('${s.id}')" title="New questions go here"><i class="fa-solid fa-crosshairs"></i> Target</button>`}
+          <button class="icon-btn" onclick="moveSection('${s.id}',-1)" title="Move up" ${si===0?'disabled':''}><i class="fa-solid fa-arrow-up"></i></button>
+          <button class="icon-btn" onclick="moveSection('${s.id}',1)" title="Move down" ${si===currentSections.length-1?'disabled':''}><i class="fa-solid fa-arrow-down"></i></button>
+          <button class="icon-btn danger" onclick="deleteSection('${s.id}')" title="Delete section" ${currentSections.length===1?'disabled':''}><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="section-body">${questionsHtml}</div>
+    </div>`;
+  }).join('');
+
+  // Mount RTE editors for each section title/description
+  c.querySelectorAll('.s-title-host').forEach(host => {
+    const sid = host.dataset.sid;
+    const sec = currentSections.find(x => x.id === sid);
+    if (!sec) return;
+    const ed = createRichEditor({
+      value: sec.titleHtml || escapeHtml(sec.title),
+      placeholder: 'Section title',
+      multiline: false,
+      onChange: html => {
+        sec.titleHtml = html;
+        sec.title = htmlToText(html);
+      }
+    });
+    ed.el.addEventListener('focusin', () => {
+      if (activeSectionId !== sid) setActiveSection(sid);
+    });
+    host.appendChild(ed.el);
+  });
+  c.querySelectorAll('.s-desc-host').forEach(host => {
+    const sid = host.dataset.sid;
+    const sec = currentSections.find(x => x.id === sid);
+    if (!sec) return;
+    const ed = createRichEditor({
+      value: sec.descriptionHtml || escapeHtml(sec.description),
+      placeholder: 'Section description (optional)',
+      multiline: true,
+      onChange: html => {
+        sec.descriptionHtml = html;
+        sec.description = htmlToText(html);
+      }
+    });
+    host.appendChild(ed.el);
+  });
+
+  // Mount RTE editors for question titles/descriptions
+  c.querySelectorAll('.q-block').forEach(block => {
+    const qid = block.dataset.qid;
+    const found = findQuestion(qid);
+    if (!found) return;
+    const q = found.question;
+
+    const titleHost = block.querySelector('.q-title-host');
+    const descHost = block.querySelector('.q-desc-host');
+    if (titleHost){
+      const ed = createRichEditor({
+        value: q.titleHtml || escapeHtml(q.title),
+        placeholder: 'Question title',
+        multiline: false,
+        onChange: html => {
+          q.titleHtml = html;
+          q.title = htmlToText(html);
+        }
+      });
+      titleHost.appendChild(ed.el);
+    }
+    if (descHost){
+      const ed = createRichEditor({
+        value: q.descriptionHtml || escapeHtml(q.description),
+        placeholder: 'Question description (optional)',
+        multiline: true,
+        onChange: html => {
+          q.descriptionHtml = html;
+          q.description = htmlToText(html);
+        }
+      });
+      descHost.appendChild(ed.el);
+    }
+  });
+
+  // Required toggle
+  c.querySelectorAll('.req-toggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const qid = btn.dataset.qid;
+      const found = findQuestion(qid);
+      if (!found) return;
+      found.question.required = !found.question.required;
+      renderSections();
+    });
+  });
+
+  // Move-to-section dropdowns
+  c.querySelectorAll('.q-move-select').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const qid = e.target.dataset.qid;
+      const targetSid = e.target.value;
+      const found = findQuestion(qid);
+      if (!found) return;
+      const srcSec = found.section;
+      const dstSec = currentSections.find(x => x.id === targetSid);
+      if (!dstSec || dstSec.id === srcSec.id) return;
+      srcSec.questions = srcSec.questions.filter(q => q.id !== qid);
+      dstSec.questions.push(found.question);
+      renderSections();
+      toast('Question moved');
+    });
+  });
+}
+
+function renderQuestionCard(q, qi, sectionIndex){
+  const meta = QUESTION_TYPES.find(t => t.type === q.type) || { label:q.type, icon:'fa-circle-question' };
+  let preview = '';
+  if (['radio','checkbox','dropdown'].includes(q.type)){
+    preview = `<div class="q-opts"><ul>${(q.options||[]).map(o => `<li>${escapeHtml(o)}</li>`).join('')}</ul></div>`;
+  } else if (q.type === 'scale'){
+    preview = `<div class="q-opts">Scale: ${q.scaleMin} to ${q.scaleMax} ${q.scaleMinLabel?'('+escapeHtml(q.scaleMinLabel)+' → '+escapeHtml(q.scaleMaxLabel)+')':''}</div>`;
+  }
+
+  const sectionOpts = currentSections.map(s => {
+    const isCurrent = s.questions.some(x => x.id === q.id);
+    return `<option value="${s.id}" ${isCurrent?'disabled':''}>${escapeHtml(s.title||'Untitled')}</option>`;
+  }).join('');
+
+  const hasBranching = q.branching && Object.keys(q.branching).length > 0;
+  const branchBadge = hasBranching ? `<span class="qtype" style="background:var(--soft-yellow);color:#b8860b"><i class="fa-solid fa-code-branch"></i> Branching</span>` : '';
+
+  return `<div class="q-block" data-qid="${q.id}">
+    <div class="qh">
+      <div style="flex:1;min-width:0">
+        <div class="q-title-host"></div>
+        <div style="margin-top:4px">
+          <span class="qtype"><i class="fa-solid ${meta.icon}"></i> ${meta.label}</span>
+          ${branchBadge}
+          <button class="req-toggle ${q.required?'on':''}" data-qid="${q.id}" type="button" title="Toggle required">
+            <i class="fa-solid ${q.required?'fa-circle-check':'fa-circle'}"></i>
+            ${q.required?'Required':'Optional'}
+          </button>
+        </div>
+        <div class="q-desc-host" style="margin-top:6px"></div>
+        ${preview}
+      </div>
+      <div class="q-actions">
+        <select class="q-move-select" data-qid="${q.id}" title="Move to section">
+          <option value="">Move to…</option>
+          ${sectionOpts}
+        </select>
+        <button class="icon-btn" onclick="moveQuestion('${q.id}',-1)" title="Move up"><i class="fa-solid fa-arrow-up"></i></button>
+        <button class="icon-btn" onclick="moveQuestion('${q.id}',1)" title="Move down"><i class="fa-solid fa-arrow-down"></i></button>
+        <button class="icon-btn" onclick="duplicateQuestion('${q.id}')" title="Duplicate"><i class="fa-solid fa-copy"></i></button>
+        <button class="icon-btn" onclick="editQuestion('${q.id}')" title="Advanced options"><i class="fa-solid fa-sliders"></i></button>
+        <button class="icon-btn danger" onclick="deleteQuestion('${q.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function moveQuestion(qid, dir){
+  const found = findQuestion(qid);
+  if (!found) return;
+  const { section, question } = found;
+  const i = section.questions.indexOf(question);
+  const j = i + dir;
+  if (j < 0 || j >= section.questions.length) return;
+  [section.questions[i], section.questions[j]] = [section.questions[j], section.questions[i]];
+  renderSections();
+}
+window.moveQuestion = moveQuestion;
+
+function duplicateQuestion(qid){
+  const found = findQuestion(qid);
+  if (!found) return;
+  const { section, question } = found;
+  const i = section.questions.indexOf(question);
+  const copy = JSON.parse(JSON.stringify(question));
+  copy.id = 'q_' + uid();
+  copy.title = (copy.title || 'Untitled') + ' (copy)';
+  if (copy.titleHtml){
+    copy.titleHtml = copy.titleHtml + ' <i>(copy)</i>';
+  }
+  section.questions.splice(i+1, 0, copy);
+  renderSections();
+}
+window.duplicateQuestion = duplicateQuestion;
+
+function deleteQuestion(qid){
+  confirmDialog({title:'Delete Question', msg:'This question will be removed from the form. Continue?', type:'danger', okText:'Delete'})
+    .then(ok => {
+      if (!ok) return;
+      const found = findQuestion(qid);
+      if (!found) return;
+      found.section.questions = found.section.questions.filter(q => q.id !== qid);
+      renderSections();
+    });
+}
+window.deleteQuestion = deleteQuestion;
+
+/* ---------- Question advanced options (modal) ---------- */
+function editQuestion(qid){
+  const found = findQuestion(qid);
+  if (!found) return;
+  const q = found.question;
+  const meta = QUESTION_TYPES.find(t => t.type === q.type);
+  const hasOpts = ['radio','dropdown'].includes(q.type); // Only radio & dropdown support branching in this version
+  const isScale = q.type === 'scale';
+
+  let optsHtml = '';
+  if (['radio','checkbox','dropdown'].includes(q.type)){
+    optsHtml = `<div class="field"><label>Options</label><div id="optList">${
+      (q.options||[]).map((o,i) => `
+        <div class="opt-row">
+          <input type="text" value="${escapeHtml(o)}" data-opt="${i}" placeholder="Option ${i+1}">
+          <button class="icon-btn danger" onclick="removeOption(${i})" type="button"><i class="fa-solid fa-xmark"></i></button>
+        </div>`).join('')
+    }</div>
+    <button class="btn btn-ghost btn-sm" onclick="addOption()" type="button"><i class="fa-solid fa-plus"></i> Add Option</button></div>`;
+  }
+  
+  let scaleHtml = '';
+  if (isScale){
+    scaleHtml = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Min Value</label><input type="number" id="qScaleMin" value="${q.scaleMin||1}" min="0" max="1"></div>
+        <div class="field"><label>Max Value</label><input type="number" id="qScaleMax" value="${q.scaleMax||5}" min="2" max="10"></div>
+        <div class="field"><label>Min Label</label><input type="text" id="qScaleMinLbl" value="${escapeHtml(q.scaleMinLabel||'')}" placeholder="e.g. Poor"></div>
+        <div class="field"><label>Max Label</label><input type="text" id="qScaleMaxLbl" value="${escapeHtml(q.scaleMaxLabel||'')}" placeholder="e.g. Excellent"></div>
+      </div>`;
+  }
+
+  // --- NEW: Conditional Logic Builder ---
+  let branchingHtml = '';
+  if (hasOpts) {
+    // Build section options (excluding the current section)
+    const sectionOpts = currentSections.map((s, i) => {
+      if (s.id === found.section.id) return ''; // can't jump to current section
+      return `<option value="${s.id}">${escapeHtml(s.title || 'Section ' + (i+1))}</option>`;
+    }).join('');
+
+    const branchRules = q.branching || {};
+    const ruleRows = (q.options || []).map(opt => {
+      const target = branchRules[opt] || '';
+      return `<div class="field" style="margin-bottom:8px;display:flex;gap:10px;align-items:center">
+        <span style="font-size:.8rem;width:120px;flex-shrink:0;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(opt)}">If "${escapeHtml(opt)}"</span>
+        <i class="fa-solid fa-arrow-right" style="color:var(--text2);font-size:.75rem"></i>
+        <select class="branch-select" data-opt="${escapeHtml(opt)}" style="flex:1;padding:7px;border:1.5px solid var(--border);border-radius:7px;font-size:.82rem;outline:none">
+          <option value="">Continue to next section</option>
+          ${sectionOpts}
+        </select>
+      </div>`;
+    }).join('');
+
+    branchingHtml = `<div class="field" style="margin-top:16px;background:var(--bg);padding:14px;border-radius:10px;border:1px solid var(--border)">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:12px">
+        <input type="checkbox" id="qEnableBranching" ${Object.keys(branchRules).length ? 'checked' : ''} style="width:16px;height:16px;accent-color:var(--primary)">
+        <span style="font-weight:600;color:var(--dark-red);font-size:.9rem">Enable Conditional Logic (Branching)</span>
+      </label>
+      <div id="branchRulesWrap" style="display:${Object.keys(branchRules).length ? 'block' : 'none'}">
+        <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.4">Redirect respondents to a specific section based on their answer.</p>
+        ${ruleRows}
+      </div>
+    </div>`;
+  }
+
+  openModal(`Advanced Options · ${meta.label}`,
+    `<p style="font-size:.85rem;color:var(--text2);margin-bottom:14px">
+      The question title and description are edited directly on the card.
+    </p>
+     ${optsHtml}
+     ${scaleHtml}
+     <div class="field" style="margin-top:6px">
+       <label class="switch"><input type="checkbox" id="qReq" ${q.required?'checked':''}><span class="track"></span><span>Required question</span></label>
+     </div>
+     ${branchingHtml}`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" id="qSaveBtn"><i class="fa-solid fa-check"></i> Save</button>`
+  );
+
+  window.__tempOptions = [...(q.options||[])];
+  window.addOption = () => {
+    window.__tempOptions.push('Option ' + (window.__tempOptions.length+1));
+    refreshOptList();
+  };
+  window.removeOption = (i) => {
+    window.__tempOptions.splice(i,1);
+    refreshOptList();
+  };
+  function refreshOptList(){
+    const list = document.getElementById('optList');
+    if (!list) return;
+    list.innerHTML = window.__tempOptions.map((o,i) => `
+      <div class="opt-row">
+        <input type="text" value="${escapeHtml(o)}" data-opt="${i}" placeholder="Option ${i+1}">
+        <button class="icon-btn danger" onclick="removeOption(${i})" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>`).join('');
+    list.querySelectorAll('input[data-opt]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        window.__tempOptions[+e.target.dataset.opt] = e.target.value;
+      });
+    });
+  }
+  refreshOptList();
+
+  // Toggle branching visibility
+  const enableBranch = document.getElementById('qEnableBranching');
+  const branchWrap = document.getElementById('branchRulesWrap');
+  if (enableBranch) {
+    enableBranch.addEventListener('change', () => {
+      branchWrap.style.display = enableBranch.checked ? 'block' : 'none';
+    });
+  }
+
+  document.getElementById('qSaveBtn').addEventListener('click', () => {
+    q.required = document.getElementById('qReq').checked;
+    if (['radio','checkbox','dropdown'].includes(q.type)) q.options = window.__tempOptions.filter(o => o.trim());
+    
+    // Save branching rules
+    if (hasOpts) {
+      const isEnabled = document.getElementById('qEnableBranching')?.checked;
+      q.branching = {};
+      if (isEnabled) {
+        document.querySelectorAll('.branch-select').forEach(sel => {
+          if (sel.value) q.branching[sel.dataset.opt] = sel.value;
+        });
+      }
+    }
+
+    if (isScale){
+      q.scaleMin = +document.getElementById('qScaleMin').value || 1;
+      q.scaleMax = +document.getElementById('qScaleMax').value || 5;
+      q.scaleMinLabel = document.getElementById('qScaleMinLbl').value.trim();
+      q.scaleMaxLabel = document.getElementById('qScaleMaxLbl').value.trim();
+    }
+    closeModal();
+    renderSections();
+    toast('Options saved', 'success');
+  });
+}
+window.editQuestion = editQuestion;
+
+/* ---------- Save Form ---------- */
+async function saveForm(publish){
+  // --- Self-heal: currentForm may be null if the user reached this page
+  //     via the sidebar "Create Form" button without clicking "New Form".
+  if (!currentForm){
+    currentForm = {
+      title: '', titleHtml: '',
+      description: '', descriptionHtml: '',
+      settings: defaultSettings()
+    };
+  }
+  if (!currentForm.settings){
+    currentForm.settings = defaultSettings();
+  }
+
+  // --- Self-heal: currentSections may be empty for the same reason.
+  if (!Array.isArray(currentSections) || !currentSections.length){
+    currentSections = [ newSection('Section 1') ];
+    activeSectionId = currentSections[0].id;
+    renderSections();
+  }
+
+  // --- Self-heal: the rich text editors may not be initialized yet.
+  if (!fTitleEditor || !fDescEditor){
+    initTopEditors();
+  }
+
+  // --- Self-heal: auth may not have resolved yet (unlikely, but safe).
+  if (!currentUser || !currentUser.uid){
+    toast('Your session is not ready. Please wait a moment and try again.', 'error');
+    return;
+  }
+
+  // --- Read the current title/description from the rich text editors.
+  const titleHtml = fTitleEditor?.getHtml() || '';
+  const descHtml  = fDescEditor?.getHtml()  || '';
+  const titleText = htmlToText(titleHtml);
+  const descText  = htmlToText(descHtml);
+
+  // --- Validation.
+  if (!titleText){ toast('Please enter a form title', 'error'); return; }
+  if (totalQuestions() === 0){ toast('Add at least one question', 'error'); return; }
+
+  currentSections.forEach((s, i) => {
+    if (!s.title || !s.title.trim()){
+      s.title = 'Section ' + (i+1);
+      if (!s.titleHtml) s.titleHtml = escapeHtml(s.title);
+    }
+  });
+  for (const s of currentSections){
+    for (const q of s.questions){
+      if (!q.title || !q.title.trim()){
+        toast('All questions need a title', 'error');
+        return;
+      }
+    }
+  }
+
+  // --- Build the payload.
+  const payload = {
+    ownerUid: currentUser.uid,
+    title: titleText,
+    titleHtml: titleHtml,
+    description: descText,
+    descriptionHtml: descHtml,
+    sections: currentSections,
+    questions: currentSections.flatMap(s => s.questions), // compat mirror
+    settings: currentForm.settings,
+    status: publish ? 'published' : 'draft',
+    updatedAt: serverTimestamp()
+  };
+
+  // --- Write to Firestore.
+  try {
+    if (editingFormId){
+      if (publish) payload.publishedAt = serverTimestamp();
+      await updateDoc(doc(db, 'forms', editingFormId), payload);
+      toast(publish ? 'Form published successfully' : 'Draft updated', 'success');
+    } else {
+      payload.createdAt = serverTimestamp();
+      payload.responseCount = 0;
+      if (publish) payload.publishedAt = serverTimestamp();
+      const ref = await addDoc(collection(db, 'forms'), payload);
+      editingFormId = ref.id;
+      toast(publish ? 'Form published successfully' : 'Draft saved', 'success');
+    }
+    await loadForms();
+    setTimeout(() => switchPage('forms'), 500);
+  } catch (e) {
+    console.error(e);
+    toast('Failed to save form: ' + e.message, 'error');
+  }
+}
+window.saveForm = saveForm;
+
+/* ---------- Preview ---------- */
+function previewForm(){
+  const sectionsHtml = currentSections.map((s, si) => {
+    const qs = s.questions.map((q, qi) => renderPreviewQuestion(q, qi)).join('');
+    return `<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
+      <div style="font-size:.72rem;color:var(--primary);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">
+        Section ${si+1}
+      </div>
+      <div style="font-weight:700;color:var(--dark-red);font-size:1rem;margin-bottom:4px">${s.titleHtml || escapeHtml(s.title||'Untitled Section')}</div>
+      ${s.descriptionHtml ? `<div style="font-size:.85rem;color:var(--text2);margin-bottom:10px">${s.descriptionHtml}</div>` : (s.description ? `<div style="font-size:.85rem;color:var(--text2);margin-bottom:10px">${escapeHtml(s.description)}</div>` : '')}
+      ${qs}
+    </div>`;
+  }).join('');
+
+  openModal('Form Preview · ' + (htmlToText(fTitleEditor?.getHtml() || '') || 'Untitled'),
+    `<div style="background:var(--bg);padding:18px;border-radius:12px">
+      <h2 style="color:var(--dark-red);font-size:1.2rem;margin-bottom:6px">${fTitleEditor?.getHtml() || 'Untitled Form'}</h2>
+      <div style="font-size:.88rem;color:var(--text2);margin-bottom:16px">${fDescEditor?.getHtml() || ''}</div>
+      ${sectionsHtml}
+    </div>`,
+    `<button class="btn btn-primary" onclick="closeModal()"><i class="fa-solid fa-check"></i> Close Preview</button>`
+  );
+}
+window.previewForm = previewForm;
+
+function previewFormById(id){
+  const f = forms.find(x => x.id === id);
+  if (!f) return;
+  const sections = Array.isArray(f.sections) && f.sections.length
+    ? f.sections
+    : [{ title:'Section 1', titleHtml:'', description:'', descriptionHtml:'', questions: f.questions || [] }];
+
+  const sectionsHtml = sections.map((s, si) => {
+    const qs = (s.questions||[]).map((q, qi) => renderPreviewQuestion(q, qi)).join('');
+    return `<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
+      <div style="font-size:.72rem;color:var(--primary);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">
+        Section ${si+1}
+      </div>
+      <div style="font-weight:700;color:var(--dark-red);font-size:1rem;margin-bottom:4px">${s.titleHtml || escapeHtml(s.title||'Untitled Section')}</div>
+      ${s.descriptionHtml ? `<div style="font-size:.85rem;color:var(--text2);margin-bottom:10px">${s.descriptionHtml}</div>` : (s.description ? `<div style="font-size:.85rem;color:var(--text2);margin-bottom:10px">${escapeHtml(s.description)}</div>` : '')}
+      ${qs}
+    </div>`;
+  }).join('');
+
+  openModal('Form Preview · ' + (f.title||'Untitled'),
+    `<div style="background:var(--bg);padding:18px;border-radius:12px">
+      <h2 style="color:var(--dark-red);font-size:1.2rem;margin-bottom:6px">${f.titleHtml || escapeHtml(f.title||'Untitled')}</h2>
+      <div style="font-size:.88rem;color:var(--text2);margin-bottom:16px">${f.descriptionHtml || escapeHtml(f.description||'')}</div>
+      ${sectionsHtml}
+    </div>`,
+    `<button class="btn btn-primary" onclick="closeModal()"><i class="fa-solid fa-check"></i> Close Preview</button>`
+  );
+}
+window.previewFormById = previewFormById;
+
+function renderPreviewQuestion(q, i){
+  const req = q.required ? '<span style="color:var(--error)">*</span> ' : '';
+  let ctrl = '';
+  switch (q.type){
+    case 'short': ctrl = `<input type="text" disabled placeholder="Short answer" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff">`; break;
+    case 'paragraph': ctrl = `<textarea disabled placeholder="Long answer" style="width:100%;min-height:70px;padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff"></textarea>`; break;
+    case 'radio': ctrl = (q.options||[]).map(o => `<label style="display:block;padding:5px 0;font-size:.88rem"><input type="radio" disabled> ${escapeHtml(o)}</label>`).join(''); break;
+    case 'checkbox': ctrl = (q.options||[]).map(o => `<label style="display:block;padding:5px 0;font-size:.88rem"><input type="checkbox" disabled> ${escapeHtml(o)}</label>`).join(''); break;
+    case 'dropdown': ctrl = `<select disabled style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff">${(q.options||[]).map(o=>`<option>${escapeHtml(o)}</option>`).join('')}</select>`; break;
+    case 'date': ctrl = `<input type="date" disabled style="padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff">`; break;
+    case 'time': ctrl = `<input type="time" disabled style="padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff">`; break;
+    case 'number': ctrl = `<input type="number" disabled placeholder="0" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff">`; break;
+    case 'email': ctrl = `<input type="email" disabled placeholder="name@example.com" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff">`; break;
+    case 'phone': ctrl = `<input type="tel" disabled placeholder="+63..." style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff">`; break;
+    case 'scale': {
+      const nums = [];
+      for (let n = q.scaleMin||1; n <= (q.scaleMax||5); n++) nums.push(n);
+      ctrl = `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        ${q.scaleMinLabel?`<span style="font-size:.78rem;color:var(--text2)">${escapeHtml(q.scaleMinLabel)}</span>`:''}
+        ${nums.map(n => `<label style="display:flex;flex-direction:column;align-items:center;font-size:.82rem"><input type="radio" disabled>${n}</label>`).join('')}
+        ${q.scaleMaxLabel?`<span style="font-size:.78rem;color:var(--text2)">${escapeHtml(q.scaleMaxLabel)}</span>`:''}
+      </div>`;
+      break;
+    }
+  }
+  const titleHtml = q.titleHtml || escapeHtml(q.title || 'Untitled');
+  const descHtml = q.descriptionHtml || (q.description ? escapeHtml(q.description) : '');
+  return `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
+    <div style="font-weight:600;color:var(--dark-red);font-size:.92rem;margin-bottom:4px">${i+1}. ${req}${titleHtml}</div>
+    ${descHtml ? `<div style="font-size:.82rem;color:var(--text2);margin-bottom:8px">${descHtml}</div>` : ''}
+    ${ctrl}
+  </div>`;
+}
+
+/* ---------- Publish toggle ---------- */
+async function togglePublish(id){
+  const f = forms.find(x => x.id === id);
+  if (!f) return;
+  const goingLive = f.status !== 'published';
+  const ok = await confirmDialog({
+    title: goingLive ? 'Publish Form?' : 'Unpublish Form?',
+    msg: goingLive ? 'The form will be publicly accessible via its link. Continue?' : 'The public link will no longer accept submissions. Continue?',
+    type: goingLive ? 'info' : 'danger',
+    okText: goingLive ? 'Publish' : 'Unpublish'
+  });
+  if (!ok) return;
+  try {
+    await updateDoc(doc(db, 'forms', id), {
+      status: goingLive ? 'published' : 'draft',
+      publishedAt: goingLive ? serverTimestamp() : null,
+      updatedAt: serverTimestamp()
+    });
+    toast(goingLive ? 'Form published' : 'Form unpublished', 'success');
+    loadForms();
+  } catch(e){ toast('Failed: ' + e.message, 'error'); }
+}
+window.togglePublish = togglePublish;
+
+/* ---------- Share ---------- */
+function shareForm(id){
+  const f = forms.find(x => x.id === id);
+  if (!f) return;
+  const base = window.location.href.replace(/[^/]*$/, '');
+  const url = base + 'forms.html?id=' + id;
+  const status = f.status === 'published' ? 'Published' : 'Draft (not accepting submissions)';
+  openModal('Share Form',
+    `<p style="font-size:.88rem;color:var(--text2);margin-bottom:10px">
+      Share this link with respondents. They can answer without creating an account.
+    </p>
+    <div class="share-url">
+      <input type="text" readonly id="shareUrlInput" value="${escapeHtml(url)}">
+      <button class="btn btn-primary" id="copyShareBtn"><i class="fa-solid fa-copy"></i> Copy</button>
+    </div>
+    <div style="font-size:.82rem;color:var(--text2);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px">
+      <span><i class="fa-solid fa-circle-info"></i> Status: <b style="color:${f.status==='published'?'var(--success)':'#b8860b'}">${status}</b></span>
+    </div>
+    <div class="qr-box">
+      <div id="qrContainer"></div>
+      <span style="font-size:.78rem;color:var(--text2)">Scan to open form</span>
+    </div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Close</button>
+     <a class="btn btn-accent" href="${url}" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Form</a>`
+  );
+  document.getElementById('qrContainer').innerHTML =
+    `<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(url)}" alt="QR Code" style="border:1px solid var(--border);border-radius:8px">`;
+  document.getElementById('copyShareBtn').addEventListener('click', () => {
+    navigator.clipboard.writeText(url).then(() => toast('Link copied to clipboard', 'success'))
+      .catch(() => toast('Could not copy link', 'error'));
+  });
+}
+window.shareForm = shareForm;
+
+/* ---------- Duplicate ---------- */
+async function duplicateForm(id){
+  const f = forms.find(x => x.id === id);
+  if (!f) return;
+  const ok = await confirmDialog({title:'Duplicate Form', msg:'A copy of this form will be created as a draft.', type:'info', okText:'Duplicate'});
+  if (!ok) return;
+  try {
+    const sections = Array.isArray(f.sections) && f.sections.length
+      ? JSON.parse(JSON.stringify(f.sections))
+      : [{ id:'s_' + uid(), title:'Section 1', titleHtml:'', description:'', descriptionHtml:'', questions: JSON.parse(JSON.stringify(f.questions || [])) }];
+
+    const copy = {
+      ownerUid: currentUser.uid,
+      title: (f.title||'Untitled') + ' (Copy)',
+      titleHtml: f.titleHtml || escapeHtml(f.title||'Untitled'),
+      description: f.description || '',
+      descriptionHtml: f.descriptionHtml || '',
+      sections,
+      questions: sections.flatMap(s => s.questions),
+      settings: f.settings || {},
+      status: 'draft',
+      responseCount: 0,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      publishedAt: null
+    };
+    await addDoc(collection(db, 'forms'), copy);
+    toast('Form duplicated', 'success');
+    loadForms();
+  } catch(e){ toast('Failed: ' + e.message, 'error'); }
+}
+window.duplicateForm = duplicateForm;
+
+/* ---------- Delete ---------- */
+async function deleteForm(id){
+  const f = forms.find(x => x.id === id);
+  if (!f) return;
+  const ok = await confirmDialog({title:'Delete Form', msg:`Delete "${f.title}"? This will permanently remove the form. Responses in the subcollection may remain unless manually cleaned. Continue?`, type:'danger', okText:'Delete'});
+  if (!ok) return;
+  try {
+    await deleteDoc(doc(db, 'forms', id));
+    toast('Form deleted', 'success');
+    loadForms();
+  } catch(e){ toast('Failed: ' + e.message, 'error'); }
+}
+window.deleteForm = deleteForm;
+
+/* ---------- Open Sheets ---------- */
+function openSheets(id){
+  window.location.href = 'sheets.html?id=' + encodeURIComponent(id);
+}
+window.openSheets = openSheets;
+
+/* ---------- Settings page ---------- */
+function hydrateAccountInfo(){
+  if (!currentUser) return;
+  const a = currentUser;
+  const docData = currentAdminDoc || {};
+
+  const email = docData.email || a.email || '—';
+  const displayName = docData.name
+    || docData.displayName
+    || a.displayName
+    || (a.email ? a.email.split('@')[0] : 'Administrator');
+  const initial = (displayName || email || 'A').charAt(0).toUpperCase();
+
+  const av = $('#settingsAvatar'); if (av) av.textContent = initial;
+  const nameEl = $('#settingsName'); if (nameEl) nameEl.textContent = displayName;
+  const em = $('#settingsEmail'); if (em) em.textContent = email;
+
+  // Role (from Firestore, or default)
+  const rolePill = document.querySelector('.settings-role');
+  if (rolePill){
+    const role = docData.role || 'Administrator';
+    rolePill.innerHTML =
+      '<i class="fa-solid fa-shield-halved"></i> ' +
+      escapeHtml(role) + ' — full access';
+  }
+
+  const uidEl = $('#settingsUid'); if (uidEl) uidEl.textContent = a.uid || '—';
+
+  const lastIn = $('#settingsLastSignIn');
+  if (lastIn){
+    lastIn.textContent = a.metadata?.lastSignInTime
+      ? fmtDate(new Date(a.metadata.lastSignInTime))
+      : '—';
+  }
+
+  const verified = $('#settingsVerified');
+  if (verified){
+    verified.textContent = a.emailVerified ? 'Yes' : 'No';
+    verified.style.color = a.emailVerified ? 'var(--success)' : '#b8860b';
+  }
+
+  // Prefer Firestore `createdAt` over Auth `creationTime`
+  const since = $('#settingsSince');
+  if (since){
+    if (docData.createdAt){
+      since.textContent = fmtDateShort(docData.createdAt);
+    } else if (a.metadata?.creationTime){
+      since.textContent = fmtDateShort(new Date(a.metadata.creationTime));
+    } else {
+      since.textContent = '—';
+    }
+  }
+
+  // Optional extra fields — shown only if present in Firestore
+  const opts = [
+    { key:'department', wrap:'#metaDepartment', val:'#settingsDepartment' },
+    { key:'position',   wrap:'#metaPosition',   val:'#settingsPosition'   },
+    { key:'phone',      wrap:'#metaPhone',      val:'#settingsPhone'      }
+  ];
+  for (const o of opts){
+    const wrapEl = $(o.wrap);
+    const valEl = $(o.val);
+    if (!wrapEl || !valEl) continue;
+    if (docData[o.key]){
+      valEl.textContent = String(docData[o.key]);
+      wrapEl.style.display = '';
+    } else {
+      wrapEl.style.display = 'none';
+    }
+  }
+}
+window.refreshAccountInfo = async () => {
+  if (currentUser){
+    try {
+      const fresh = await getDoc(doc(db, 'admins', currentUser.uid));
+      if (fresh.exists()) currentAdminDoc = fresh.data() || {};
+    } catch(e){
+      console.error('Refresh failed:', e);
+    }
+  }
+  applyAdminIdentity();
+  hydrateAccountInfo();
+  toast('Account info refreshed');
+};
+
+async function sendPasswordReset(){
+  if (!currentUser?.email) { toast('No email on this account', 'error'); return; }
+  const ok = await confirmDialog({
+    title: 'Send Password Reset Email?',
+    msg: `A password reset link will be sent to ${currentUser.email}. Continue?`,
+    type: 'info',
+    okText: 'Send Email'
+  });
+  if (!ok) return;
+  try {
+    await sendPasswordResetEmail(auth, currentUser.email);
+    toast('Password reset email sent', 'success');
+  } catch (e){
+    console.error(e);
+    toast('Could not send reset email: ' + (e.message || 'Unknown error'), 'error');
+  }
+}
+window.sendPasswordReset = sendPasswordReset;
+
+/* ---------- Initialize top editors on first load ---------- */
+initTopEditors();
+</script>
+</body>
+</html>

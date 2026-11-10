@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Access — Tara Basa Program · DSWD</title>
+<link rel="icon" href="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --light-red:#FEE9E7;       /* soft red background */
+    --primary:#C62828;         /* deep red */
+    --dark-red:#8B1E1E;        /* darker red for headings */
+    --accent:#FFB74D;          /* warm accent */
+    --soft-yellow:#FFF4BF;     /* light accent */
+    --white:#FFFFFF;
+    --bg:#FFF9F8;              /* warm off-white */
+    --text:#2E1E1E;
+    --text2:#7A5C5C;
+    --border:#F0D9D7;
+    --success:#198754;
+    --error:#B71C1C;
+    --shadow:0 4px 16px rgba(139,30,30,.08);
+    --shadow-lg:0 20px 48px rgba(139,30,30,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+  a{text-decoration:none;color:inherit}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  .topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 0}
+  .topbar .container{max-width:1180px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;color:var(--dark-red)}
+  .brand img{width:38px;height:38px;border-radius:50%;border:2px solid var(--light-red)}
+  .brand small{display:block;font-weight:500;font-size:.72rem;color:var(--text2)}
+  .back-link{font-size:.9rem;color:var(--text2);font-weight:500;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;transition:.2s}
+  .back-link:hover{background:var(--light-red);color:var(--dark-red)}
+  main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px}
+  .login-card{background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-lg);width:100%;max-width:460px;padding:36px 34px;position:relative;overflow:hidden}
+  .login-card::before{content:"";position:absolute;top:-80px;right:-80px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,var(--light-red),transparent 70%);opacity:.7}
+  .login-card::after{content:"";position:absolute;bottom:-100px;left:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,var(--soft-yellow),transparent 70%);opacity:.6}
+  .login-inner{position:relative;z-index:1}
+  .logo-wrap{display:flex;justify-content:center;margin-bottom:18px}
+  .logo-wrap img{width:66px;height:66px;border-radius:50%;border:3px solid var(--light-red);box-shadow:0 6px 20px rgba(198,40,40,.25)}
+  h1{text-align:center;font-size:1.4rem;font-weight:800;color:var(--dark-red);margin-bottom:5px;letter-spacing:-.01em}
+  .sub{text-align:center;color:var(--text2);font-size:.88rem;margin-bottom:22px}
+
+  /* Tabs */
+  .tabs{display:flex;background:var(--bg);border-radius:11px;padding:4px;margin-bottom:22px;position:relative;z-index:1}
+  .tab{flex:1;padding:10px;text-align:center;font-size:.88rem;font-weight:600;color:var(--text2);border-radius:8px;transition:.2s;cursor:pointer}
+  .tab.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(139,30,30,.08)}
+  .tab:hover:not(.active){color:var(--dark-red)}
+
+  .field{margin-bottom:15px}
+  .field label{display:block;font-size:.83rem;font-weight:600;color:var(--dark-red);margin-bottom:6px}
+  .input-wrap{position:relative}
+  .input-wrap i.pre{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:.9rem;pointer-events:none}
+  .input-wrap input{width:100%;padding:11px 42px 11px 42px;border:1.5px solid var(--border);border-radius:10px;font-size:.93rem;font-family:inherit;color:var(--text);background:#fff;transition:.2s;outline:none}
+  .input-wrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(198,40,40,.15)}
+  .toggle-pass{position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:8px;color:var(--text2);border-radius:6px;transition:.2s}
+  .toggle-pass:hover{color:var(--primary);background:var(--light-red)}
+  .error-msg{color:var(--error);font-size:.78rem;margin-top:5px;display:none;align-items:center;gap:6px}
+  .error-msg.show{display:flex}
+
+  .btn{width:100%;padding:12px;border-radius:10px;font-weight:600;font-size:.93rem;display:flex;align-items:center;justify-content:center;gap:9px;transition:.2s}
+  .btn-primary{background:var(--primary);color:#fff;box-shadow:0 6px 16px rgba(198,40,40,.3)}
+  .btn-primary:hover:not(:disabled){background:#A31C1C;transform:translateY(-1px)}
+  .btn-primary:disabled{opacity:.7;cursor:not-allowed}
+  .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+  .loading .spinner{display:block}
+  .loading .btn-text{display:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .info-box{margin-top:18px;background:var(--light-red);border-radius:10px;padding:13px 15px;font-size:.8rem;color:var(--dark-red);display:flex;gap:10px;line-height:1.55}
+  .info-box i{color:var(--primary);margin-top:2px;flex-shrink:0}
+
+  .warning-box{margin-top:18px;background:#fff4bf;border:1px solid #f0d97a;border-radius:10px;padding:13px 15px;font-size:.78rem;color:#7a5b00;display:flex;gap:10px;line-height:1.55}
+  .warning-box i{color:#b8860b;margin-top:2px;flex-shrink:0}
+
+  .form-panel{display:none}
+  .form-panel.active{display:block;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(139,30,30,.5);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fadeIn .2s}
+  .modal-overlay.show{display:flex}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:30px 26px;box-shadow:var(--shadow-lg);animation:pop .25s;text-align:center}
+  @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal .m-icon{width:56px;height:56px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+  .modal.error .m-icon{background:#fde8ea;color:var(--error)}
+  .modal.success .m-icon{background:#e3f5ea;color:var(--success)}
+  .modal h3{font-size:1.12rem;color:var(--dark-red);margin-bottom:8px}
+  .modal p{color:var(--text2);font-size:.9rem;margin-bottom:20px;line-height:1.55}
+  .modal .btn{width:100%}
+
+  /* Toast */
+  .toast-wrap{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:300}
+  .toast{background:#fff;border-left:4px solid var(--primary);border-radius:10px;box-shadow:var(--shadow-lg);padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:.88rem;color:var(--text);min-width:260px;animation:slideIn .3s}
+  .toast.success{border-left-color:var(--success)}
+  .toast.error{border-left-color:var(--error)}
+  .toast i{font-size:1.05rem}
+  .toast.success i{color:var(--success)}
+  .toast.error i{color:var(--error)}
+  @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+  @media(max-width:520px){.login-card{padding:30px 22px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <img src="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png" alt="DSWD Logo">
+      <span>Tara Basa Program <small>Admin Portal</small></span>
+    </a>
+    <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+  </div>
+</div>
+
+<main>
+  <div class="login-card">
+    <div class="login-inner">
+      <div class="logo-wrap">
+        <img src="https://wxyzofficial.sirv.com/TARA%20BASA/tb_logo.png" alt="DSWD Logo">
+      </div>
+
+      <div class="tabs" role="tablist">
+        <div class="tab active" id="tabLogin" role="tab" aria-selected="true">Sign In</div>
+        <div class="tab" id="tabSignup" role="tab" aria-selected="false">Create Account</div>
+      </div>
+
+      <!-- ============ LOGIN PANEL ============ -->
+      <div class="form-panel active" id="panelLogin">
+        <h1>Administrator Login</h1>
+        <p class="sub">Sign in to manage Tara Basa forms and responses</p>
+
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="email">Email Address</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-envelope pre"></i>
+              <input type="email" id="email" placeholder="admin@dswd.gov.ph" autocomplete="username" required>
+            </div>
+            <div class="error-msg" id="emailErr"><i class="fa-solid fa-circle-exclamation"></i> <span></span></div>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lock pre"></i>
+              <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required>
+              <button type="button" class="toggle-pass" id="togglePass" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
+            </div>
+            <div class="error-msg" id="passErr"><i class="fa-solid fa-circle-exclamation"></i> <span></span></div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            <span class="spinner"></span>
+            <span class="btn-text"><i class="fa-solid fa-right-to-bracket"></i> Sign In</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- ============ SIGNUP PANEL ============ -->
+      <div class="form-panel" id="panelSignup">
+        <h1>Create Administrator Account</h1>
+        <p class="sub">Register a new DSWD administrator account</p>
+
+        <form id="signupForm" novalidate>
+          <div class="field">
+            <label for="suEmail">Email Address</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-envelope pre"></i>
+              <input type="email" id="suEmail" placeholder="admin@dswd.gov.ph" autocomplete="username" required>
+            </div>
+            <div class="error-msg" id="suEmailErr"><i class="fa-solid fa-circle-exclamation"></i> <span></span></div>
+          </div>
+          <div class="field">
+            <label for="suPassword">Password</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lock pre"></i>
+              <input type="password" id="suPassword" placeholder="At least 6 characters" autocomplete="new-password" required>
+              <button type="button" class="toggle-pass" id="toggleSuPass" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
+            </div>
+            <div class="error-msg" id="suPassErr"><i class="fa-solid fa-circle-exclamation"></i> <span></span></div>
+          </div>
+          <div class="field">
+            <label for="suConfirm">Confirm Password</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lock pre"></i>
+              <input type="password" id="suConfirm" placeholder="Re-enter your password" autocomplete="new-password" required>
+              <button type="button" class="toggle-pass" id="toggleSuConfirm" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
+            </div>
+            <div class="error-msg" id="suConfirmErr"><i class="fa-solid fa-circle-exclamation"></i> <span></span></div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="signupBtn">
+            <span class="spinner"></span>
+            <span class="btn-text"><i class="fa-solid fa-user-plus"></i> Create Account</span>
+          </button>
+        </form>
+
+        <div class="warning-box">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div><b>Open registration is enabled.</b> Anyone who reaches this page can create an administrator account and access all Tara Basa forms and responses. Disable signups in the script (<code>SIGNUP_ENABLED</code>) once your admins are provisioned.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="m-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+    <h3 id="modalTitle">Error</h3>
+    <p id="modalMsg">Something went wrong.</p>
+    <button class="btn btn-primary" id="modalClose"><i class="fa-solid fa-check"></i> Got It</button>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signOut, onAuthStateChanged, updateProfile }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ============================================================
+   MASTER SWITCH — set to false to disable open registration
+   ============================================================ */
+const SIGNUP_ENABLED = false;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC5ZhZkpA7yvGPo7rNfZIXHIgMipsBIIR0",
+  authDomain: "tara-basa-forms.firebaseapp.com",
+  projectId: "tara-basa-forms",
+  storageBucket: "tara-basa-forms.firebasestorage.app",
+  messagingSenderId: "795155191396",
+  appId: "1:795155191396:web:fd8fecf7a89c5976e2b171",
+  measurementId: "G-HSH1PHTZ3X"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+
+/* ---------- Modal / Toast ---------- */
+function openModal(title, msg, type='error'){
+  const box = $('modalBox');
+  box.className = 'modal ' + type;
+  $('modalTitle').textContent = title;
+  $('modalMsg').textContent = msg;
+  box.querySelector('.m-icon').innerHTML = type === 'success'
+    ? '<i class="fa-solid fa-circle-check"></i>'
+    : '<i class="fa-solid fa-circle-exclamation"></i>';
+  $('modalOverlay').classList.add('show');
+}
+function closeModal(){ $('modalOverlay').classList.remove('show'); }
+$('modalClose').addEventListener('click', closeModal);
+$('modalOverlay').addEventListener('click', e => { if (e.target === $('modalOverlay')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function toast(msg, type='success'){
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}"></i><span></span>`;
+  el.querySelector('span').textContent = msg;
+  $('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+/* ---------- Tabs ---------- */
+$('tabLogin').addEventListener('click', () => switchTab('login'));
+$('tabSignup').addEventListener('click', () => switchTab('signup'));
+function switchTab(which){
+  const isLogin = which === 'login';
+  $('tabLogin').classList.toggle('active', isLogin);
+  $('tabSignup').classList.toggle('active', !isLogin);
+  $('tabLogin').setAttribute('aria-selected', isLogin);
+  $('tabSignup').setAttribute('aria-selected', !isLogin);
+  $('panelLogin').classList.toggle('active', isLogin);
+  $('panelSignup').classList.toggle('active', !isLogin);
+}
+
+/* ---------- Password show/hide ---------- */
+function bindToggle(btnId, inputId){
+  $(btnId).addEventListener('click', () => {
+    const inp = $(inputId);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    $(btnId).innerHTML = show ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+  });
+}
+bindToggle('togglePass', 'password');
+bindToggle('toggleSuPass', 'suPassword');
+bindToggle('toggleSuConfirm', 'suConfirm');
+
+/* ---------- Field errors ---------- */
+function showErr(id, msg){
+  const el = $(id);
+  el.querySelector('span').textContent = msg;
+  el.classList.add('show');
+}
+function clearErrs(scope){
+  (scope || document).querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+}
+
+/* ---------- Admin check ---------- */
+async function isAdmin(uid){
+  try {
+    const snap = await getDoc(doc(db, 'admins', uid));
+    return snap.exists() && snap.data().active === true;
+  } catch(e){ return false; }
+}
+
+/* ---------- Auto-redirect if already admin ---------- */
+onAuthStateChanged(auth, async (user) => {
+  if (user && !user.isAnonymous) {
+    const ok = await isAdmin(user.uid);
+    if (ok) window.location.href = 'admin.html';
+  }
+});
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearErrs($('panelLogin'));
+
+  const email = $('email').value.trim();
+  const password = $('password').value;
+  let valid = true;
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('emailErr','Enter a valid email address.'); valid = false; }
+  if (!password || password.length < 6) { showErr('passErr','Password must be at least 6 characters.'); valid = false; }
+  if (!valid) return;
+
+  const btn = $('submitBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const ok = await isAdmin(cred.user.uid);
+    if (!ok) {
+      await signOut(auth);
+      openModal('Access Denied', 'This account is not authorized as a Tara Basa Program administrator.', 'error');
+      return;
+    }
+    toast('Signed in. Redirecting…', 'success');
+    setTimeout(() => window.location.href = 'admin.html', 600);
+  } catch (err) {
+    console.error(err);
+    let msg = 'Unable to sign in. Please check your credentials and try again.';
+    if (['auth/invalid-credential','auth/wrong-password','auth/user-not-found'].includes(err.code)) msg = 'Incorrect email or password.';
+    else if (err.code === 'auth/too-many-requests') msg = 'Too many failed attempts. Please wait a moment.';
+    else if (err.code === 'auth/network-request-failed') msg = 'Network error. Check your internet connection.';
+    openModal('Sign-In Failed', msg, 'error');
+  } finally {
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+});
+
+/* ============================================================
+   SIGNUP  →  create auth user  →  save to /admins/{uid}
+   ============================================================ */
+$('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearErrs($('panelSignup'));
+
+  if (!SIGNUP_ENABLED){
+    openModal('Signups Disabled', 'Account creation is currently disabled. Contact your DSWD system administrator.', 'error');
+    return;
+  }
+
+  const email   = $('suEmail').value.trim();
+  const password = $('suPassword').value;
+  const confirm  = $('suConfirm').value;
+
+  let valid = true;
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('suEmailErr','Enter a valid email address.'); valid = false; }
+  if (!password || password.length < 6) { showErr('suPassErr','Password must be at least 6 characters.'); valid = false; }
+  if (password !== confirm) { showErr('suConfirmErr','Passwords do not match.'); valid = false; }
+  if (!valid) return;
+
+  const btn = $('signupBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+
+  let createdUid = null;
+  try {
+    // 1. Create the Firebase Auth user
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    createdUid = cred.user.uid;
+
+    // 2. Write the admin record (this is what grants admin access)
+    await setDoc(doc(db, 'admins', createdUid), {
+      email: email,
+      active: true,
+      createdAt: serverTimestamp()
+    });
+
+    // 3. Optional: set displayName for nicer UI
+    try { await updateProfile(cred.user, { displayName: email }); } catch(_){}
+
+    toast('Account created. Redirecting…', 'success');
+    setTimeout(() => window.location.href = 'admin.html', 800);
+
+  } catch (err) {
+    console.error(err);
+    // If auth succeeded but Firestore write failed, sign out to avoid a half-state
+    if (createdUid && auth.currentUser){
+      try { await signOut(auth); } catch(_){}
+    }
+
+    let title = 'Sign-Up Failed';
+    let msg = 'Unable to create account. Please try again.';
+
+    switch (err.code) {
+      case 'auth/email-already-in-use':
+        title = 'Email Already In Use';
+        msg = 'An account with this email already exists. Try signing in instead.';
+        break;
+      case 'auth/invalid-email':
+        msg = 'The email address is not valid.';
+        break;
+      case 'auth/weak-password':
+        msg = 'Password is too weak. Use at least 6 characters.';
+        break;
+      case 'auth/operation-not-allowed':
+        msg = 'Email/Password sign-up is not enabled in Firebase Authentication. Enable it in the Firebase Console.';
+        break;
+      case 'permission-denied':
+      case 'firestore/permission-denied':
+        title = 'Permission Denied';
+        msg = 'Firestore rejected the admin record write. Check your security rules — clients must be allowed to create their own /admins/{uid} document for this flow to work.';
+        break;
+      case 'auth/network-request-failed':
+        msg = 'Network error. Check your internet connection.';
+        break;
+    }
+    openModal(title, msg, 'error');
+  } finally {
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
