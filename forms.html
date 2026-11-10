@@ -61,7 +61,47 @@ main{flex:1;padding:34px 20px 60px}
 .form-header .header-img{margin-top:18px;border-radius:12px;overflow:hidden;max-height:280px}
 .form-header .header-img img{width:100%;height:100%;object-fit:cover;display:block}
 
-/* Progress Bar */
+/* Submission Progress */
+.submission-progress{
+  margin-top:16px;
+  padding:12px 16px;
+  background:var(--light-red);
+  border:1px solid rgba(198,40,40,.2);
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-size:.85rem;
+  font-weight:600;
+  color:var(--dark-red);
+}
+.submission-progress .prog-label{display:flex;align-items:center;gap:8px;}
+.submission-progress .prog-label i{color:var(--primary);}
+.submission-progress .prog-count{font-size:1rem;font-weight:800;color:var(--primary);}
+.submission-progress .prog-bar-wrap{
+  flex:1;
+  height:8px;
+  background:rgba(198,40,40,.15);
+  border-radius:99px;
+  overflow:hidden;
+  max-width:200px;
+}
+.submission-progress .prog-bar-fill{
+  height:100%;
+  background:var(--primary);
+  border-radius:99px;
+  transition:width .5s ease;
+}
+.submission-progress.limit-reached{
+  background:#fde8ea;
+  border-color:var(--error);
+  color:var(--error);
+}
+.submission-progress.limit-reached .prog-count{color:var(--error);}
+.submission-progress.limit-reached .prog-label i{color:var(--error);}
+
+/* Progress Bar (Multi-step forms) */
 .progress-wrap{background:#fff;border-radius:20px;box-shadow:var(--shadow);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
 .progress-bar{flex:1;height:8px;background:var(--border);border-radius:99px;overflow:hidden}
 .progress-fill{height:100%;background:var(--primary);width:0%;transition:width .3s ease}
@@ -169,6 +209,8 @@ textarea{resize:vertical;min-height:100px;line-height:1.5}
   .nav-wrap{padding:18px 22px}
   .form-header h1{font-size:1.35rem}
   .nav-wrap .btn{width:100%}
+  .submission-progress{flex-direction:column;align-items:flex-start;gap:8px;}
+  .submission-progress .prog-bar-wrap{max-width:100%;width:100%;}
 }
 </style>
 </head>
@@ -223,6 +265,7 @@ let formId = null;
 let anonUser = null;
 let currentSectionIndex = 0;
 let navigationHistory = [];
+let authResolved = false;
 
 function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
 
@@ -255,10 +298,29 @@ if (!formId){
 
 /* --- Load form after anonymous auth --- */
 onAuthStateChanged(auth, async (user) => {
-  if (!user){
-    try { const cred = await signInAnonymously(auth); anonUser = cred.user; }
-    catch(e){ console.error(e); if (formId) showState('error','fa-triangle-exclamation','Authentication Error','We could not establish a session. Please refresh and try again.'); return; }
-  } else { anonUser = user; }
+  if (authResolved) return; // Prevent multiple executions
+  
+  if (!user) {
+    try { 
+      const cred = await signInAnonymously(auth); 
+      anonUser = cred.user; 
+    } catch(e) { 
+      console.error("Auth Error:", e); 
+      if (formId) {
+        let errorMsg = "We could not establish a session. Please refresh and try again.";
+        if (e.code === 'auth/operation-not-allowed') {
+          errorMsg = "Anonymous authentication is disabled in Firebase. Please contact the administrator.";
+        }
+        showState('error','fa-triangle-exclamation','Authentication Error', errorMsg,
+          `<button class="btn btn-primary" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Refresh Page</button>`); 
+      }
+      return; 
+    }
+  } else { 
+    anonUser = user; 
+  }
+  
+  authResolved = true;
   if (formId) loadForm();
 });
 
@@ -289,10 +351,22 @@ async function loadForm(){
         s.closingMessage ? `<p>${escapeHtml(s.closingMessage)}</p>` : '');
       return;
     }
+
+    // Check Submission Limit on Load
+    if (s.maxResponses !== undefined && s.maxResponses !== null && s.maxResponses > 0) {
+      const currentCount = formData.responseCount || 0;
+      if (currentCount >= s.maxResponses) {
+        showState('error','fa-ban','Form Full','This form has reached its maximum number of responses (' + s.maxResponses + ').',
+          s.closingMessage ? `<p>${escapeHtml(s.closingMessage)}</p>` : '');
+        return;
+      }
+    }
+
     renderForm();
   } catch(e){
     console.error(e);
-    showState('error','fa-triangle-exclamation','Connection Error','We could not load the form. Please check your connection and refresh the page.');
+    showState('error','fa-triangle-exclamation','Connection Error','We could not load the form. Please check your connection and refresh the page.',
+      `<button class="btn btn-primary" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Refresh Page</button>`);
   }
 }
 
@@ -338,8 +412,27 @@ function renderForm(){
       <div class="accent-bar" style="background:${theme}"></div>
       <h1>${titleHtml}</h1>
       ${descHtml ? `<div class="desc">${descHtml}</div>` : ''}
-      ${headerImg}
+      ${headerImg}`;
+
+  // Add Submission Progress Tracker
+  if (s.maxResponses !== undefined && s.maxResponses !== null && s.maxResponses > 0) {
+    const currentCount = formData.responseCount || 0;
+    const maxResp = s.maxResponses;
+    const percentage = Math.min((currentCount / maxResp) * 100, 100);
+    
+    html += `<div class="submission-progress">
+      <div class="prog-label">
+        <i class="fa-solid fa-users"></i>
+        <span>Submission Progress</span>
+      </div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-fill" style="width:${percentage}%"></div>
+      </div>
+      <div class="prog-count">${currentCount} / ${maxResp}</div>
     </div>`;
+  }
+
+  html += `</div>`; // End form-header
 
   html += `<form id="responseForm" novalidate>`;
 
@@ -689,6 +782,21 @@ async function onSubmit(e){
       return;
     }
 
+    // Double-check submission limit right before writing to prevent race conditions
+    const freshData = fresh.data();
+    const s = freshData.settings || {};
+    if (s.maxResponses !== undefined && s.maxResponses !== null && s.maxResponses > 0) {
+      const currentCount = freshData.responseCount || 0;
+      if (currentCount >= s.maxResponses) {
+        toast('This form is now full. It has reached its maximum number of responses.', 'error');
+        showState('error','fa-ban','Form Full','This form has reached its maximum number of responses (' + s.maxResponses + ').',
+          s.closingMessage ? `<p>${escapeHtml(s.closingMessage)}</p>` : '');
+        if (nextBtn) { nextBtn.classList.remove('loading'); nextBtn.disabled = false; }
+        submitting = false;
+        return;
+      }
+    }
+
     const respCol = collection(db, 'forms', formId, 'responses');
     await addDoc(respCol, {
       formId,
@@ -702,7 +810,6 @@ async function onSubmit(e){
       await updateDoc(doc(db, 'forms', formId), { responseCount: increment(1) });
     } catch(e){ console.warn('Count update failed:', e.message); }
 
-    const s = formData.settings || {};
     showState('success','fa-circle-check','Response Submitted',
       s.confirmationMessage || 'Thank you! Your response has been recorded.',
       s.allowMultiple === false ? '' : `<button class="btn btn-ghost" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Submit Another Response</button>`);
