@@ -242,7 +242,7 @@ textarea{resize:vertical;min-height:100px;line-height:1.5}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp, updateDoc, increment }
+import { getFirestore, doc, getDoc, getDocs, addDoc, collection, serverTimestamp, updateDoc, increment, query, where, limit }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -266,6 +266,7 @@ let anonUser = null;
 let currentSectionIndex = 0;
 let navigationHistory = [];
 let authResolved = false;
+let currentResponseCount = 0; // Live count of responses
 
 function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
 
@@ -298,7 +299,7 @@ if (!formId){
 
 /* --- Load form after anonymous auth --- */
 onAuthStateChanged(auth, async (user) => {
-  if (authResolved) return; // Prevent multiple executions
+  if (authResolved) return; 
   
   if (!user) {
     try { 
@@ -352,10 +353,14 @@ async function loadForm(){
       return;
     }
 
+    // Fetch the LIVE count of responses to handle deleted entries
+    const respRef = collection(db, 'forms', formId, 'responses');
+    const respSnap = await getDocs(respRef);
+    currentResponseCount = respSnap.size;
+
     // Check Submission Limit on Load
     if (s.maxResponses !== undefined && s.maxResponses !== null && s.maxResponses > 0) {
-      const currentCount = formData.responseCount || 0;
-      if (currentCount >= s.maxResponses) {
+      if (currentResponseCount >= s.maxResponses) {
         showState('error','fa-ban','Form Full','This form has reached its maximum number of responses (' + s.maxResponses + ').',
           s.closingMessage ? `<p>${escapeHtml(s.closingMessage)}</p>` : '');
         return;
@@ -414,11 +419,10 @@ function renderForm(){
       ${descHtml ? `<div class="desc">${descHtml}</div>` : ''}
       ${headerImg}`;
 
-  // Add Submission Progress Tracker
+  // Add Submission Progress Tracker (using LIVE count)
   if (s.maxResponses !== undefined && s.maxResponses !== null && s.maxResponses > 0) {
-    const currentCount = formData.responseCount || 0;
     const maxResp = s.maxResponses;
-    const percentage = Math.min((currentCount / maxResp) * 100, 100);
+    const percentage = Math.min((currentResponseCount / maxResp) * 100, 100);
     
     html += `<div class="submission-progress">
       <div class="prog-label">
@@ -428,7 +432,7 @@ function renderForm(){
       <div class="prog-bar-wrap">
         <div class="prog-bar-fill" style="width:${percentage}%"></div>
       </div>
-      <div class="prog-count">${currentCount} / ${maxResp}</div>
+      <div class="prog-count">${currentResponseCount} / ${maxResp}</div>
     </div>`;
   }
 
@@ -436,9 +440,7 @@ function renderForm(){
 
   html += `<form id="responseForm" novalidate>`;
 
-  // Render each section WITHOUT its own nav wrap. A single shared nav bar is
-  // rendered at the bottom of the card and driven by JS state so the Back
-  // button always reflects the real navigation history.
+  // Render each section
   sections.forEach((sec, si) => {
     const isActive = si === startIndex ? 'active' : '';
     const secTitleHtml = sec.titleHtml || escapeHtml(sec.title||'Section '+(si+1));
@@ -457,7 +459,7 @@ function renderForm(){
     html += `</div>`;
   });
 
-  // Shared navigation bar (Back / Next / Submit)
+  // Shared navigation bar
   html += `<div class="nav-wrap" id="navWrap">
     <button type="button" class="btn btn-ghost" id="backBtn" disabled>
       <i class="fa-solid fa-arrow-left"></i> Back
@@ -579,14 +581,14 @@ function getNextSectionIndex(currentSi){
           const targetIndex = sections.findIndex(s => s.id === targetSectionId);
           if (targetIndex !== -1) {
             nextSi = targetIndex;
-            break; // Apply the first matched branch rule
+            break; 
           }
         }
       }
     }
   }
 
-  // If no branch applied, find the next natural section that is NOT a target of branching
+  // If no branch applied, find the next natural section that is NOT a target
   if (nextSi === -1) {
     const targetSections = {};
     sections.forEach(sec => {
@@ -613,7 +615,6 @@ function nextSection(currentSi){
   const blocks = document.querySelectorAll('.section-block');
 
   if (nextSi === -1) {
-    // No more natural sections; this is the last one. Submit.
     document.getElementById('responseForm').dispatchEvent(new Event('submit', { cancelable: true }));
     return;
   }
@@ -624,7 +625,6 @@ function nextSection(currentSi){
   navigationHistory.push(nextSi);
   currentSectionIndex = nextSi;
 
-  // Scroll the newly revealed section into view
   blocks[nextSi].scrollIntoView({ behavior: 'smooth', block: 'start' });
   updateNavBar();
 }
@@ -782,12 +782,16 @@ async function onSubmit(e){
       return;
     }
 
-    // Double-check submission limit right before writing to prevent race conditions
     const freshData = fresh.data();
     const s = freshData.settings || {};
+
+    // 1. Fetch the LIVE count of responses to enforce limit correctly
+    const respRef = collection(db, 'forms', formId, 'responses');
+    const respSnap = await getDocs(respRef);
+    const liveCount = respSnap.size;
+
     if (s.maxResponses !== undefined && s.maxResponses !== null && s.maxResponses > 0) {
-      const currentCount = freshData.responseCount || 0;
-      if (currentCount >= s.maxResponses) {
+      if (liveCount >= s.maxResponses) {
         toast('This form is now full. It has reached its maximum number of responses.', 'error');
         showState('error','fa-ban','Form Full','This form has reached its maximum number of responses (' + s.maxResponses + ').',
           s.closingMessage ? `<p>${escapeHtml(s.closingMessage)}</p>` : '');
@@ -797,6 +801,49 @@ async function onSubmit(e){
       }
     }
 
+    // 2. Email Validation (Unique Email check)
+    // Find all email questions in this form
+    const emailQIds = [];
+    getSections().forEach(sec => {
+      (sec.questions || []).forEach(q => {
+        if (q.type === 'email') emailQIds.push(q.id);
+      });
+    });
+
+    // Check if the submitted answers contain an email that already exists
+    for (const eqId of emailQIds) {
+      const submittedEmail = answers[eqId];
+      if (submittedEmail) {
+        // We need to query the responses to see if this email exists
+        // Since Firestore doesn't allow querying nested object properties dynamically easily in a collection group,
+        // we do a client-side check by fetching all responses (or we could query if it was a top-level field).
+        // To be safe and accurate for now, we check the already fetched `respSnap`:
+        const isDuplicate = respSnap.docs.some(doc => {
+          const rAnswers = doc.data().answers || {};
+          return rAnswers[eqId] === submittedEmail;
+        });
+
+        if (isDuplicate) {
+          toast('This email address has already been used for this form.', 'error');
+          // Scroll to the email question
+          const qDiv = document.querySelector(`.question[data-qid="${eqId}"]`);
+          if (qDiv) {
+            qDiv.scrollIntoView({behavior:'smooth', block:'center'});
+            // Highlight it
+            const errDiv = qDiv.querySelector('.q-error');
+            if (errDiv) {
+              errDiv.querySelector('span').textContent = 'This email has already been used.';
+              errDiv.classList.add('show');
+            }
+          }
+          if (nextBtn) { nextBtn.classList.remove('loading'); nextBtn.disabled = false; }
+          submitting = false;
+          return; // Stop submission
+        }
+      }
+    }
+
+    // Proceed with saving response
     const respCol = collection(db, 'forms', formId, 'responses');
     await addDoc(respCol, {
       formId,
